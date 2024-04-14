@@ -2,9 +2,5 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/DeliveryRentalMotor/obj
-/DeliveryRentalMotor/.vs/DeliveryRentalMotor
 /.vs
-/DeliveryRentalMotor/.vs/ProjectEvaluation
-/obj/Debug/net8.0
-/bin
+/obj
