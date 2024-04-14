@@ -1,9 +1,7 @@
-﻿using AutoMapper;
-using Azure;
+﻿using Azure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RentalMotor.Api.Complement.Enums;
-using RentalMotor.Api.Entities;
 using RentalMotor.Api.Models;
 using RentalMotor.Api.Services.Interfaces;
 using System.Reflection;
@@ -40,7 +38,7 @@ namespace RentalMotor.Api.Controllers
             {
                 _logger.LogInformation($"Searching all users motors - {MethodBase.GetCurrentMethod().Name}");
 
-                var usersMotors = await Task.Run(() => _userMotorService.GetUsers());
+                var usersMotors = await Task.Run(() => _userMotorService.Get());
                 if (usersMotors is not null)
                 {
                     _logger.LogInformation($"Returning {usersMotors.Count()} users motors - {MethodBase.GetCurrentMethod().Name}");
@@ -78,7 +76,7 @@ namespace RentalMotor.Api.Controllers
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                var user = await Task.Run(() => _userMotorService.GetUserById(id));
+                var user = await Task.Run(() => _userMotorService.GetById(id));
 
                 return Ok(user);
             }
@@ -110,7 +108,7 @@ namespace RentalMotor.Api.Controllers
                         return BadRequest("Cnh category invalid");                    
 
                 _logger.LogInformation($"Adding UserMotor- {MethodBase.GetCurrentMethod()!.Name}");
-                await Task.Run(() => _userMotorService.AddUser(userMotorModel));
+                await Task.Run(() => _userMotorService.Add(userMotorModel));
                 return StatusCode(StatusCodes.Status201Created);
 
             }
@@ -132,7 +130,7 @@ namespace RentalMotor.Api.Controllers
         ///         "id": "12346789",
         ///         "name": "Pepe",
         ///         "secondName": "Ostias",
-        ///         "email": "pepe@example.com",
+        ///         "email": "pepe@example.com",    
         ///         "phoneNumber": "34234567",
         ///         "cpfCnpj": "222.222.222-22",
         ///         "address": {
@@ -157,7 +155,7 @@ namespace RentalMotor.Api.Controllers
             {
                 _logger.LogInformation($"Updating userMotor {userMotorModel.UserName} - {MethodBase.GetCurrentMethod().Name}");
 
-                await Task.Run(() => _userMotorService.UpdateUser(userMotorModel));
+                await Task.Run(() => _userMotorService.Update(userMotorModel));
 
                 _logger.LogInformation($"Returning user {userMotorModel.UserName} - {MethodBase.GetCurrentMethod().Name}");
                 return Ok(true);
@@ -191,7 +189,7 @@ namespace RentalMotor.Api.Controllers
 
                 _logger.LogInformation($"Deleting User Motor {userMotorId}- {MethodBase.GetCurrentMethod().Name}");
 
-                await Task.Run(() => _userMotorService.DeleteUser(userMotorId));
+                await Task.Run(() => _userMotorService.Delete(userMotorId));
 
                 return Ok(true);
             }

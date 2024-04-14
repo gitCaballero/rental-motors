@@ -17,7 +17,7 @@ namespace RentalMotor.Api.Services.Implements
             _mapper = mapper;
         }
 
-        public void AddUser(UserMotorModel userMotorModel)
+        public void Add(UserMotorModel userMotorModel)
         {
             var listCategories = new List<string>();
             foreach (var category in userMotorModel.Cnh!.CnhCategories)
@@ -31,12 +31,12 @@ namespace RentalMotor.Api.Services.Implements
             _userMotorRepository.AddUser(userMotor);
         }
 
-        public void DeleteUser(string id)
+        public void Delete(string id)
         {
             _userMotorRepository.DeleteUser(id);
         }
 
-        public UserMotorModel GetUserById(string id)
+        public UserMotorModel GetById(string id)
         {
             var userMotor = _userMotorRepository.GetUserById(id);
             
@@ -45,7 +45,7 @@ namespace RentalMotor.Api.Services.Implements
             return userMotorModel;
         }
 
-        public IEnumerable<UserMotorModel> GetUsers()
+        public IEnumerable<UserMotorModel> Get()
         {
              var userMotorModels = new List<UserMotorModel>();
             var usersMotors = _userMotorRepository.GetUsers();
@@ -61,7 +61,7 @@ namespace RentalMotor.Api.Services.Implements
             return userMotorModels;
         }
 
-        public void UpdateUser(UserMotorModel userMotorModel)
+        public void Update(UserMotorModel userMotorModel)
         {
             var userMotor = _mapper.Map<UserMotor>(userMotorModel);
 
