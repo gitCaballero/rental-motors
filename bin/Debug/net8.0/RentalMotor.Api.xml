@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RentalMotor.Api</name>
+    </assembly>
+    <members>
+        <member name="M:RentalMotor.Api.Controllers.UserMotorController.GetAll">
+            <summary>
+            usersMotors - Method to search all users motors
+            </summary>
+        </member>
+        <member name="M:RentalMotor.Api.Controllers.UserMotorController.Get(System.String)">
+            <summary>
+            getById - Method to search by user motor id 
+            </summary>
+            <remarks>
+            Example:
+            
+                GET /userMotorId?id={{id}}
+                
+            </remarks>
+            <param name="Id">Id do usuario</param>
+        </member>
+        <member name="M:RentalMotor.Api.Controllers.UserMotorController.CreateUserMotor(RentalMotor.Api.Models.UserMotorModel)">
+            <summary>
+            create - creates user with complementary data
+            </summary>
+            <remarks>
+            Example:
+            
+                POST /CreateRoles?roleName={{roleName}}
+                
+            </remarks>
+            <param name="userMotorModel">Object to be created</param>
+        </member>
+        <member name="M:RentalMotor.Api.Controllers.UserMotorController.Put(RentalMotor.Api.Models.UserMotorModel)">
+            <summary>
+            update - update user motor
+            </summary>
+            <remarks>
+            Example:
+            
+                POST /update
+                {
+                    "id": "12346789",
+                    "name": "Pepe",
+                    "secondName": "Ostias",
+                    "email": "pepe@example.com",    
+                    "phoneNumber": "34234567",
+                    "cpfCnpj": "222.222.222-22",
+                    "address": {
+                                "id": "12346789",
+                                "street": "Calle1",
+                                "city": "São Paulo",
+                                "state": "São Paulo",
+                                "postalCode": "02700-000",
+                                "country": "Brasil",
+                                "number": "10",
+                                "complement": "casa"
+                     }
+                 }
+                
+            </remarks>
+        </member>
+        <member name="M:RentalMotor.Api.Controllers.UserMotorController.Delete(System.String)">
+            <summary>
+            delete - delete user motor register
+            </summary>
+            <remarks>
+            Example:
+            
+                DELETE /delete?userMotorId={{userMotorId}}
+               
+            </remarks>
+        </member>
+        <member name="T:RentalMotor.Api.Migrations.Initial">
+            <inheritdoc />
+        </member>
+        <member name="M:RentalMotor.Api.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RentalMotor.Api.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:RentalMotor.Api.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

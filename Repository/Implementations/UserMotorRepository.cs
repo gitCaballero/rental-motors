@@ -1,6 +1,6 @@
 ﻿using RentalMotor.Api.Entities;
+using RentalMotor.Api.Repository.Context;
 using RentalMotor.Api.Repository.Interfaces;
-using RentalMotor.Api.Repository.Persistence;
 
 namespace RentalMotor.Api.Repository.Implementations
 {
@@ -13,23 +13,23 @@ namespace RentalMotor.Api.Repository.Implementations
             _context = context;
         }
 
-        public IEnumerable<UserMotor> GetUsers()
+        public IEnumerable<UserMotor> Get()
         {
             return _context.usersMotors;
         }
 
-        public UserMotor GetUserById(string id)
+        public UserMotor GetById(string id)
         {
             return _context.usersMotors.Where(u => u.Id == id).FirstOrDefault()!;          
         }
 
-        public void AddUser(UserMotor userMotor)
+        public void Add(UserMotor userMotor)
         {
             _context.usersMotors.Add(userMotor);
             _context.SaveChanges();
         }
 
-        public void UpdateUser(UserMotor user)
+        public void Update(UserMotor user)
         {
             var existingUser = _context.usersMotors.FirstOrDefault(u => u.Id == user.Id);
             if (existingUser != null)
@@ -39,7 +39,7 @@ namespace RentalMotor.Api.Repository.Implementations
             }
         }
 
-        public void DeleteUser(string id)
+        public void Delete(string id)
         {
             var user = _context.usersMotors.FirstOrDefault(u => u.Id == id);
             if (user != null)

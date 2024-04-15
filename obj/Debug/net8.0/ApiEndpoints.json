@@ -1,5 +1,15 @@
 [
   {
+    "ContainingType": "RentalMotor.Api.Controllers.RentalMotorController",
+    "Method": "Get",
+    "RelativePath": "api/RentalMotor/motorsavaliable",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "RentalMotor.Api.Controllers.UserMotorController",
     "Method": "CreateUserMotor",
     "RelativePath": "api/UserMotor/create",

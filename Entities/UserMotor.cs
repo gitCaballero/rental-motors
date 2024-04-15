@@ -2,7 +2,7 @@
 {
     public class UserMotor
     {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Id { get; set; } 
         public string UserId { get; set; }
         public string UserName { get; set; }
         public string CpfCnpj { get; set; }
@@ -13,7 +13,7 @@
 
     public class Cnh
     {
-        public string Id { get; set; } = new Guid().ToString();
+        public string Id { get; set; }
         public string UserMotorId { get; set; }
         public List<string> CnhCategories { get; set; }
         public int NumberCnh { get; set; }

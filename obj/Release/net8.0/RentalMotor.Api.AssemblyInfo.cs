@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RentalMotor.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+50bdb76e1529905ab976dd458ff848490bc425ec")]
 [assembly: System.Reflection.AssemblyProductAttribute("RentalMotor.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RentalMotor.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

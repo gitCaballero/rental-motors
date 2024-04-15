@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using RentalMotor.Api.Repository.Persistence;
+using RentalMotor.Api.Repository.Context;
 
 #nullable disable
 
@@ -54,7 +54,9 @@ namespace RentalMotor.Api.Migrations
             modelBuilder.Entity("RentalMotor.Api.Entities.ContractUserFoorPlan", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
@@ -66,6 +68,9 @@ namespace RentalMotor.Api.Migrations
                     b.Property<DateTime>("ForecastEndDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal>("PenaltyValue")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTime>("StarDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -74,9 +79,6 @@ namespace RentalMotor.Api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FoorPlanId")
-                        .IsUnique();
 
                     b.HasIndex("UserMotorId")
                         .IsUnique();
@@ -87,7 +89,9 @@ namespace RentalMotor.Api.Migrations
             modelBuilder.Entity("RentalMotor.Api.Entities.FoorPlan", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<int>("Cost")
                         .HasColumnType("integer");
@@ -98,9 +102,6 @@ namespace RentalMotor.Api.Migrations
                     b.Property<int>("PenaltyPorcent")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("PenaltyValue")
-                        .HasColumnType("numeric");
-
                     b.HasKey("Id");
 
                     b.ToTable("foorPlans");
@@ -109,7 +110,9 @@ namespace RentalMotor.Api.Migrations
             modelBuilder.Entity("RentalMotor.Api.Entities.UserMotor", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("timestamp with time zone");
@@ -142,22 +145,11 @@ namespace RentalMotor.Api.Migrations
 
             modelBuilder.Entity("RentalMotor.Api.Entities.ContractUserFoorPlan", b =>
                 {
-                    b.HasOne("RentalMotor.Api.Entities.FoorPlan", null)
-                        .WithOne("ContractUserFoorPlan")
-                        .HasForeignKey("RentalMotor.Api.Entities.ContractUserFoorPlan", "FoorPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("RentalMotor.Api.Entities.UserMotor", null)
                         .WithOne("ContractUserFoorPlan")
                         .HasForeignKey("RentalMotor.Api.Entities.ContractUserFoorPlan", "UserMotorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("RentalMotor.Api.Entities.FoorPlan", b =>
-                {
-                    b.Navigation("ContractUserFoorPlan");
                 });
 
             modelBuilder.Entity("RentalMotor.Api.Entities.UserMotor", b =>
