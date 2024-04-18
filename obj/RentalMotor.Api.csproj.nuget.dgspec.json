@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projetos DOT NET\\Mottul\\rental-motors\\RentalMotor.Api.csproj": {}
+    "D:\\Projects Dot Net\\Mottul\\rental-motors\\RentalMotor.Api.csproj": {}
   },
   "projects": {
-    "D:\\Projetos DOT NET\\Mottul\\rental-motors\\RentalMotor.Api.csproj": {
+    "D:\\Projects Dot Net\\Mottul\\rental-motors\\RentalMotor.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projetos DOT NET\\Mottul\\rental-motors\\RentalMotor.Api.csproj",
+        "projectUniqueName": "D:\\Projects Dot Net\\Mottul\\rental-motors\\RentalMotor.Api.csproj",
         "projectName": "RentalMotor.Api",
-        "projectPath": "D:\\Projetos DOT NET\\Mottul\\rental-motors\\RentalMotor.Api.csproj",
-        "packagesPath": "C:\\Users\\DCSAVON\\.nuget\\packages\\",
-        "outputPath": "D:\\Projetos DOT NET\\Mottul\\rental-motors\\obj\\",
+        "projectPath": "D:\\Projects Dot Net\\Mottul\\rental-motors\\RentalMotor.Api.csproj",
+        "packagesPath": "C:\\Users\\cabal\\.nuget\\packages\\",
+        "outputPath": "D:\\Projects Dot Net\\Mottul\\rental-motors\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\DCSAVON\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\cabal\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,7 +22,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

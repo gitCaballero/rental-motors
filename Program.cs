@@ -10,6 +10,7 @@ using RentalMotor.Api.Repository.Implementations;
 using RentalMotor.Api.Repository.Interfaces;
 using RentalMotor.Api.Services.Implements;
 using RentalMotor.Api.Services.Interfaces;
+using RentalMotor.Api.Services.Network;
 using System.Configuration;
 using System.Reflection;
 using System.Text;
@@ -41,9 +42,11 @@ builder.Services.AddDbContext<RentalMotorDbContext>(
         b => b.MigrationsAssembly("RentalMotor.Api")));
 
 builder.Services.AddScoped<IUserMotorRepository, UserMotorRepository>(); 
+builder.Services.AddScoped<IFoorPlanRepository, FoorPlanRepository>(); 
 builder.Services.AddScoped<IContractUserFoorPlanRepository, ContractUserFoorPlanRepository>(); 
-builder.Services.AddScoped<IUserMotorService, UserMotorService>(); 
+builder.Services.AddScoped<IRentalMotorService, RentalMotorService>(); 
 builder.Services.AddScoped<IMotorService, MotorService>(); 
+builder.Services.AddScoped<IFoorPlanService, FoorPlanService>(); 
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 

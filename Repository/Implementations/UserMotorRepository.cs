@@ -1,10 +1,11 @@
-﻿using RentalMotor.Api.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using RentalMotor.Api.Entities;
 using RentalMotor.Api.Repository.Context;
 using RentalMotor.Api.Repository.Interfaces;
 
 namespace RentalMotor.Api.Repository.Implementations
 {
-    public class UserMotorRepository: IUserMotorRepository
+    public class UserMotorRepository : IUserMotorRepository
     {
         private readonly RentalMotorDbContext _context;
 
@@ -15,12 +16,12 @@ namespace RentalMotor.Api.Repository.Implementations
 
         public IEnumerable<UserMotor> Get()
         {
-            return _context.usersMotors;
+            return _context.usersMotors.Include(x => x.ContractUserFoorPlan).Include(c => c.Cnh);
         }
 
         public UserMotor GetById(string id)
         {
-            return _context.usersMotors.Where(u => u.Id == id).FirstOrDefault()!;          
+            return _context.usersMotors.Where(u => u.Id == id).FirstOrDefault()!;
         }
 
         public void Add(UserMotor userMotor)
@@ -31,12 +32,9 @@ namespace RentalMotor.Api.Repository.Implementations
 
         public void Update(UserMotor user)
         {
-            var existingUser = _context.usersMotors.FirstOrDefault(u => u.Id == user.Id);
-            if (existingUser != null)
-            {
-                _context.Update(user);
-                _context.SaveChanges();
-            }
+            _context.Update(user);
+            _context.SaveChanges();
+
         }
 
         public void Delete(string id)

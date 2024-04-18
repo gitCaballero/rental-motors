@@ -1,16 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RentalMotor.Api.Models
+namespace RentalMotor.Api.Models.Requests
 {
-    public class UserMotorModel
+    public class RequestUserMotorModel
     {
-        [Required(ErrorMessage = "UserId Required")]        
-        [Display(Name = "UserId")]
-        public string UserId { get; set; }
-
-        [Required(ErrorMessage = "UserName Required")]
-        [Display(Name = "UserName")]
-        public string UserName { get; set; }
 
         [Required(ErrorMessage = "CpfCnpj Required")]
         [Display(Name = "CpfCnpj")]
@@ -18,18 +11,22 @@ namespace RentalMotor.Api.Models
 
         [Required(ErrorMessage = "BirthDate Required")]
         [Display(Name = "BirthDate")]
-        public DateTime BirthDate { get; set; }
+        public string BirthDate { get; set; }
 
         [Required(ErrorMessage = "CnhModel Required")]
         [Display(Name = "CnhModel")]
         public CnhModel? Cnh { get; set; }
+
+        [Required(ErrorMessage = "ContractUserFoorPlanModel Required")]
+        [Display(Name = "ContractUserFoorPlanModel")]
+        public ICollection<RequestContractUserFoorPlanModel>? ContractUserFoorPlanModel { get; set; }
     }
 
     public class CnhModel
     {
         [Required(ErrorMessage = "CnhCategories Required")]
         [Display(Name = "CnhCategories")]
-        public List<int> CnhCategories { get; set; }
+        public List<string>? CnhCategories { get; set; }
 
         [Required(ErrorMessage = "NumberCnh Required")]
         [Display(Name = "NumberCnh")]
@@ -39,5 +36,5 @@ namespace RentalMotor.Api.Models
         [Display(Name = "ImagenCnh")]
         public string ImagenCnh { get; set; } = string.Empty;
     }
-  
+
 }

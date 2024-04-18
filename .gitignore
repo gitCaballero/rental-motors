@@ -4,6 +4,8 @@
 
 /.vs
 /.obj
+/obj/**
+/bin/**
 */**/bin/Debug
 */**/bin/Release
 */**/obj/Debug

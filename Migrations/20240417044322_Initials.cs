@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RentalMotor.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Initials : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,9 +16,9 @@ namespace RentalMotor.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    Cost = table.Column<int>(type: "integer", nullable: false),
+                    CostPerDay = table.Column<int>(type: "integer", nullable: false),
                     CountDay = table.Column<int>(type: "integer", nullable: false),
-                    PenaltyPorcent = table.Column<int>(type: "integer", nullable: false)
+                    PenaltyPorcent = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,7 +33,7 @@ namespace RentalMotor.Api.Migrations
                     UserId = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "text", nullable: false),
                     CpfCnpj = table.Column<string>(type: "text", nullable: false),
-                    BirthDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    BirthDate = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -42,10 +41,10 @@ namespace RentalMotor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cnh",
+                name: "cnhs",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<string>(type: "text", nullable: false, defaultValueSql: "gen_random_uuid()"),
                     UserMotorId = table.Column<string>(type: "text", nullable: false),
                     CnhCategories = table.Column<List<string>>(type: "text[]", nullable: false),
                     NumberCnh = table.Column<int>(type: "integer", nullable: false),
@@ -53,9 +52,9 @@ namespace RentalMotor.Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cnh", x => x.Id);
+                    table.PrimaryKey("PK_cnhs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Cnh_usersMotors_UserMotorId",
+                        name: "FK_cnhs_usersMotors_UserMotorId",
                         column: x => x.UserMotorId,
                         principalTable: "usersMotors",
                         principalColumn: "Id",
@@ -67,12 +66,18 @@ namespace RentalMotor.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    CostPerDay = table.Column<int>(type: "integer", nullable: false),
+                    CountDay = table.Column<int>(type: "integer", nullable: false),
+                    PenaltyPorcent = table.Column<decimal>(type: "numeric", nullable: false),
                     UserMotorId = table.Column<string>(type: "text", nullable: false),
-                    FoorPlanId = table.Column<string>(type: "text", nullable: false),
-                    StarDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ForecastEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    PenaltyValue = table.Column<decimal>(type: "numeric", nullable: false)
+                    MotorPlate = table.Column<string>(type: "text", nullable: false),
+                    FloorPlanCountDay = table.Column<int>(type: "integer", nullable: false),
+                    StarDate = table.Column<string>(type: "text", nullable: false),
+                    EndDate = table.Column<string>(type: "text", nullable: false),
+                    ForecastEndDate = table.Column<string>(type: "text", nullable: false),
+                    PenaltyMissingDaysValue = table.Column<decimal>(type: "numeric", nullable: false),
+                    PenaltyOverDaysValue = table.Column<decimal>(type: "numeric", nullable: false),
+                    CountCurrentDays = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,23 +91,22 @@ namespace RentalMotor.Api.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cnh_UserMotorId",
-                table: "Cnh",
+                name: "IX_cnhs_UserMotorId",
+                table: "cnhs",
                 column: "UserMotorId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_contractUserFoorPlans_UserMotorId",
                 table: "contractUserFoorPlans",
-                column: "UserMotorId",
-                unique: true);
+                column: "UserMotorId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Cnh");
+                name: "cnhs");
 
             migrationBuilder.DropTable(
                 name: "contractUserFoorPlans");
