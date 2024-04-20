@@ -3,7 +3,7 @@ using RentalMotor.Api.Models.Requests;
 
 namespace RentalMotor.Api.Models.Responses
 {
-    public class ResponseUserMotorModel
+    public class ResponseContractUserMotorModel
     {
         [Required(ErrorMessage = "UserId Required")]
         [Display(Name = "UserId")]

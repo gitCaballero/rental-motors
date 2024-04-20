@@ -1,48 +1,43 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RentalMotor.Api.Configurations;
-using RentalMotor.Api.Models;
-using RentalMotor.Api.Repository.Interfaces;
+using RentalMotor.Api.Models.Responses;
 using System.Net.Http.Headers;
 
 namespace RentalMotor.Api.Services.Network
 {
     public class MotorService : IMotorService
     {
-        private readonly IContractUserFoorPlanRepository _contractUserFoorPlan;
         private readonly RentalMotorConfig _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly string _jwtToken;
+        private readonly HttpClient _httpClient;
 
-        public MotorService(IContractUserFoorPlanRepository contractUserFoorPlan, IOptions<RentalMotorConfig> config, IHttpContextAccessor httpContextAccessor)
+        public MotorService(IOptions<RentalMotorConfig> config, IHttpContextAccessor httpContextAccessor)
         {
-            _contractUserFoorPlan = contractUserFoorPlan;
             _config = config.Value;
             _httpContextAccessor = httpContextAccessor;
-
+            _httpClient = new HttpClient();
+            _jwtToken = _httpContextAccessor.HttpContext!.Request.Headers.Authorization.ToString().Split(" ")[1];
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _jwtToken);
         }
-        public async Task<IEnumerable<MotorModel>> GetMotorsAvailableToRental()
+      
+        public async Task<IEnumerable<ResponseMotorModel>> GetMotorsAvailableToRental()
         {
-            var motorsAvaliables = new List<MotorModel>();
+            var motorsAvaliables = new List<ResponseMotorModel>();
             try
             {
-                using (var httpClient = new HttpClient())
                 {
-                    var jwt = _httpContextAccessor.HttpContext!.Request.Headers.Authorization.ToString().Split(" ")[1];
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-                    
-                    var response = await httpClient.GetAsync(new Uri(_config.Url));
+
+                    var response = await _httpClient.GetAsync(new Uri($"{_config.Host}{_config.Path}{_config.MotorsAvailables}"));
 
                     if (response.IsSuccessStatusCode)
                     {
                         var result = response.Content.ReadAsStringAsync().Result;
-                        var json = JsonConvert.DeserializeObject(result);
-                        var motorStock = JsonConvert.DeserializeObject<IEnumerable<MotorModel>>(json.ToString()).ToList();
-                        var motorsContracted = _contractUserFoorPlan.Get().ToList();
 
-                        motorsAvaliables  = motorStock.Where(x => !motorsContracted.Select(c => c.MotorPlate).Contains(x.MotorPlate)).ToList();
-                        
+                        motorsAvaliables = JsonConvert.DeserializeObject<IEnumerable<ResponseMotorModel>>(result).ToList();
+
                         return motorsAvaliables;
-
                     }
                     return motorsAvaliables;
                 };
@@ -52,6 +47,30 @@ namespace RentalMotor.Api.Services.Network
                 throw new Exception(ex.Message, ex);
             }
 
+        }
+
+        public async Task<bool> ContractMotor(MotorModelContract motorContract)
+        {
+            try
+            {
+                motorContract.IsAvalable = 0;
+
+                var response = await _httpClient.PutAsJsonAsync<MotorModelContract>($"{_config.Host}{_config.Path}{_config.ContractMotors}", motorContract);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = response.Content.ReadAsStringAsync().Result;
+                    if (result.Equals("true"))
+                        return true;
+
+                    return false;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message,ex);
+            }
         }
     }
 }

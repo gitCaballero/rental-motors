@@ -2,9 +2,10 @@
 {
     public class RentalMotorConfig
     {
+        public string Host { get; set; }
+        public string MotorsAvailables { get; set; }
+        public string ContractMotors { get; set; }
         public string Path { get; set; }
-        public string Application { get; set; }
-        public string Url { get; set; }
 
     }
 }

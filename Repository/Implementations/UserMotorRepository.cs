@@ -23,6 +23,16 @@ namespace RentalMotor.Api.Repository.Implementations
         {
             return _context.usersMotors.Where(u => u.Id == id).FirstOrDefault()!;
         }
+        
+        public UserMotor GetByCpfCnpj(string cpfCnpj)
+        {
+            return _context.usersMotors.Where(u => u.CpfCnpj == cpfCnpj).FirstOrDefault()!;
+        }
+
+        public Cnh GetCnh(int cnhNumber) 
+        {
+            return _context.cnhs.Where(x => x.NumberCnh == cnhNumber).FirstOrDefault()!;
+        }
 
         public void Add(UserMotor userMotor)
         {

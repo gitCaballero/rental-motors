@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RentalMotor.Api.Entities;
+﻿using RentalMotor.Api.Entities;
 using RentalMotor.Api.Repository.Context;
 using RentalMotor.Api.Repository.Interfaces;
 
@@ -14,6 +13,7 @@ namespace RentalMotor.Api.Repository.Implementations
         {
             _context = context;
         }
+
         public void Add(ContractUserFoorPlan contractUserFoorPlan)
         {
             _context.contractUserFoorPlans.Add(contractUserFoorPlan);

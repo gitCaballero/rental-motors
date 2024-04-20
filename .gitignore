@@ -10,3 +10,12 @@
 */**/bin/Release
 */**/obj/Debug
 */**/obj/Release
+/bin/Debug/*
+/obj/Debug/net8.0/apphost.exe
+/obj/Debug/net8.0/RentalMotor.Api.AssemblyInfo.cs
+/obj/Debug/net8.0/RentalMotor.Api.AssemblyInfoInputs.cache
+/obj/Debug/net8.0/RentalMotor.Api.csproj.CoreCompileInputs.cache
+/obj/Debug/net8.0/RentalMotor.Api.dll
+/obj/Debug/net8.0/RentalMotor.Api.pdb
+/obj/Debug/net8.0/RentalMotor.Api.sourcelink.json
+/obj/Debug/net8.0/RentalMotor.Api.xml

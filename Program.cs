@@ -44,7 +44,7 @@ builder.Services.AddDbContext<RentalMotorDbContext>(
 builder.Services.AddScoped<IUserMotorRepository, UserMotorRepository>(); 
 builder.Services.AddScoped<IFoorPlanRepository, FoorPlanRepository>(); 
 builder.Services.AddScoped<IContractUserFoorPlanRepository, ContractUserFoorPlanRepository>(); 
-builder.Services.AddScoped<IRentalMotorService, RentalMotorService>(); 
+builder.Services.AddScoped<IRentalUserMotorService, RentalUserMotorService>(); 
 builder.Services.AddScoped<IMotorService, MotorService>(); 
 builder.Services.AddScoped<IFoorPlanService, FoorPlanService>(); 
 

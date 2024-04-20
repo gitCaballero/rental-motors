@@ -11,9 +11,9 @@ namespace RentalMotor.Api.Mapper
         public MappingProfile()
         {
             CreateMap<RequestUserMotorModel, UserMotor>();
-            CreateMap<ResponseUserMotorModel, UserMotor>();
+            CreateMap<ResponseContractUserMotorModel, UserMotor>();
             CreateMap<UserMotor, RequestUserMotorModel>();
-            CreateMap<UserMotor, ResponseUserMotorModel>();
+            CreateMap<UserMotor, ResponseContractUserMotorModel>();
             CreateMap<CnhModel, Cnh>();            
             CreateMap<Cnh, CnhModel>();            
             CreateMap<ContractUserFoorPlan, RequestContractUserFoorPlanModel>();
@@ -21,6 +21,7 @@ namespace RentalMotor.Api.Mapper
             CreateMap<ResponseContractUserFoorPlanModel, ContractUserFoorPlan>();
             CreateMap<RequestContractUserFoorPlanModel, ContractUserFoorPlan>();
             CreateMap<FoorPlan, FoorPlanModel>();            
+            CreateMap<ResponseMotorModel, MotorModelContract>();            
         }
     }
 }

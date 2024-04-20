@@ -4,50 +4,49 @@
         <name>RentalMotor.Api</name>
     </assembly>
     <members>
-        <member name="M:RentalMotor.Api.Controllers.RentalMotor.GetAll">
+        <member name="M:RentalMotor.Api.Controllers.RentalMotorController.Get">
             <summary>
-            usersMotors - Method to search all users motors
+            contracts - Method to search all contracts users motors
             </summary>
         </member>
-        <member name="M:RentalMotor.Api.Controllers.RentalMotor.Get(System.String)">
+        <member name="M:RentalMotor.Api.Controllers.RentalMotorController.Get(System.String)">
             <summary>
-            getById - Method to search by user motor id 
+            contractById - Method to search by contracts id 
             </summary>
             <remarks>
             Example:
             
-                GET /userMotorId?id={{id}}
+                GET /contractById?id={{id}}
                 
             </remarks>
-            <param name="Id">Id do usuario</param>
+            <param name="Id">Id contract</param>
         </member>
-        <member name="M:RentalMotor.Api.Controllers.RentalMotor.GetMotorsAvailableToRental">
+        <member name="M:RentalMotor.Api.Controllers.RentalMotorController.GetMotorsAvailableToRental">
             <summary>
-            getById - Method to search by user motor id 
+            motors-avaliables - Method to search motors availables
             </summary>
             <remarks>
             Example:
             
-                GET /userMotorId?id={{id}}
+                GET /motors-availables
                 
             </remarks>
-            <param name="Id">Id do usuario</param>
         </member>
-        <member name="M:RentalMotor.Api.Controllers.RentalMotor.CreateUserMotor(RentalMotor.Api.Models.Requests.RequestUserMotorModel)">
+        <member name="M:RentalMotor.Api.Controllers.RentalMotorController.CreateContractUserMotor(RentalMotor.Api.Models.Requests.RequestUserMotorModel)">
             <summary>
-            create - creates user with complementary data
+            create - Create a contract user motor
             </summary>
             <remarks>
             Example:
             
-                POST /CreateRoles?roleName={{roleName}}
+                POST /create
                 
             </remarks>
             <param name="userMotorModel">Object to be created</param>
         </member>
-        <member name="M:RentalMotor.Api.Controllers.RentalMotor.Put(RentalMotor.Api.Models.Requests.RequestUserMotorModel)">
+        <member name="M:RentalMotor.Api.Controllers.RentalMotorController.Put(RentalMotor.Api.Models.Requests.RequestUserMotorModel)">
             <summary>
-            update - update user motor
+            update - update a contract user motor
             </summary>
             <remarks>
             Example:
@@ -73,8 +72,9 @@
                  }
                 
             </remarks>
+            <param name="userMotorModel">Object to be update</param>
         </member>
-        <member name="M:RentalMotor.Api.Controllers.RentalMotor.Delete(System.String)">
+        <member name="M:RentalMotor.Api.Controllers.RentalMotorController.Delete(System.String)">
             <summary>
             delete - delete user motor register
             </summary>
