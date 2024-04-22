@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RentalMotor.Api.Configurations;
+using RentalMotor.Api.Extensions;
 using RentalMotor.Api.Mapper;
 using RentalMotor.Api.Repository.Context;
 using RentalMotor.Api.Repository.Implementations;
@@ -38,7 +39,7 @@ builder.Services.Configure<RentalMotorConfig>(options => configuration.GetSectio
 
 
 builder.Services.AddDbContext<RentalMotorDbContext>(
-        options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database"),
         b => b.MigrationsAssembly("RentalMotor.Api")));
 
 builder.Services.AddScoped<IUserMotorRepository, UserMotorRepository>(); 
@@ -114,14 +115,14 @@ builder.Services.AddAuthentication(x =>
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
     });
-}
+
+app.ApplyMigrations();
 
 app.UseHttpsRedirection();
 

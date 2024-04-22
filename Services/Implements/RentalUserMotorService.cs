@@ -122,6 +122,7 @@ namespace RentalMotor.Api.Services.Implements
         public async Task<ModelControllerValidation> ValidInputsController(RequestUserMotorModel userMotorModel)
         {
             var modelValided = new ModelControllerValidation();
+            modelValided.Message = string.Empty;
             modelValided.IsValid = false;
 
             var existCpfCnpj = _userMotorRepository.GetByCpfCnpj(userMotorModel.CpfCnpj);
@@ -134,12 +135,12 @@ namespace RentalMotor.Api.Services.Implements
             var existCnh = _userMotorRepository.GetCnh(userMotorModel.Cnh!.NumberCnh);
             if (existCnh != null)
             {
-                modelValided.Message = $"Cnh {existCpfCnpj!.Cnh!.NumberCnh} is already registered";
+                modelValided.Message = $"Cnh {existCnh!.NumberCnh} is already registered";
                 return modelValided;
             }
 
             DateTime birthDate;
-            var isValidateDate = DateTime.TryParse(userMotorModel.ContractUserFoorPlanModel!.Select(x => x.ForecastEndDate).First(), out birthDate);
+            var isValidateDate = DateTime.TryParse(userMotorModel.BirthDate, out birthDate);
             if (!isValidateDate)
             {
                 modelValided.Message = "BirthDate invalid";

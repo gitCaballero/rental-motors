@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace RentalMotor.Api.Migrations
 {
     /// <inheritdoc />
@@ -88,6 +90,18 @@ namespace RentalMotor.Api.Migrations
                         principalTable: "usersMotors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "foorPlans",
+                columns: new[] { "Id", "CostPerDay", "CountDay", "PenaltyPorcent" },
+                values: new object[,]
+                {
+                    { "823C8B02-56CB-4EA4-9EAE-C437AB59E738", 28, 15, 40m },
+                    { "8CF73A85-1F93-40F4-914A-035B82A01ED4", 18, 50, 0m },
+                    { "9EE17882-36F6-4E2C-B840-83F44EE05FC4", 30, 7, 20m },
+                    { "E5200618-67DC-4ECE-9D00-2522D8C71BEA", 22, 30, 0m },
+                    { "F40BA184-6F7D-44E6-B7A2-15A0D49675EE", 20, 45, 0m }
                 });
 
             migrationBuilder.CreateIndex(
