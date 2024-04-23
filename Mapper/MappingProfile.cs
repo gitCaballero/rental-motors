@@ -16,6 +16,7 @@ namespace RentalMotor.Api.Mapper
             CreateMap<UserMotor, ResponseContractUserMotorModel>();
             CreateMap<CnhModel, Cnh>();            
             CreateMap<Cnh, CnhModel>();            
+            CreateMap<Cnh, ResponseCnhModel>();            
             CreateMap<ContractUserFoorPlan, RequestContractUserFoorPlanModel>();
             CreateMap<ContractUserFoorPlan, ResponseContractUserFoorPlanModel>();
             CreateMap<ResponseContractUserFoorPlanModel, ContractUserFoorPlan>();

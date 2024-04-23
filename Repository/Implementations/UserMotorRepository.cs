@@ -14,14 +14,23 @@ namespace RentalMotor.Api.Repository.Implementations
             _context = context;
         }
 
-        public IEnumerable<UserMotor> Get()
+        public IEnumerable<UserMotor> Get(string ?id, string ?plate)
         {
-            return _context.usersMotors.Include(x => x.ContractUserFoorPlan).Include(c => c.Cnh);
+            if (id != null && plate == null)
+                return _context.usersMotors.Where(x => x.UserId == id).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
+
+            if (id == null && plate != null)
+                return _context.usersMotors.Where(x => x.ContractUserFoorPlan!.FirstOrDefault()!.MotorPlate.ToUpper() == plate.ToUpper()).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
+
+            if (id != null && plate != null)
+                return _context.usersMotors.Where(x => x.ContractUserFoorPlan!.FirstOrDefault()!.MotorPlate.ToUpper() == plate.ToUpper() && x.UserId == id).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
+
+            return _context.usersMotors.Include(c => c.ContractUserFoorPlan).Include(c => c.Cnh).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
         }
 
-        public UserMotor GetById(string id)
+        public UserMotor GetByUserId(string id)
         {
-            return _context.usersMotors.Where(u => u.Id == id).FirstOrDefault()!;
+            return _context.usersMotors.Where(u => u.UserId == id).FirstOrDefault()!;
         }
         
         public UserMotor GetByCpfCnpj(string cpfCnpj)

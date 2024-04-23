@@ -49,22 +49,17 @@ namespace RentalMotor.Api.Services.Network
 
         }
 
-        public async Task<bool> ContractMotor(MotorModelContract motorContract)
+        public async Task<bool> UpdateMotorFlag(MotorModelContract motorContract)
         {
             try
             {
                 motorContract.IsAvalable = 0;
 
-                var response = await _httpClient.PutAsJsonAsync<MotorModelContract>($"{_config.Host}{_config.Path}{_config.ContractMotors}", motorContract);
+                var response = await _httpClient.PutAsJsonAsync<MotorModelContract>($"{_config.Host}{_config.Path}", motorContract);
 
                 if (response.IsSuccessStatusCode)
-                {
-                    var result = response.Content.ReadAsStringAsync().Result;
-                    if (result.Equals("true"))
-                        return true;
+                    return true;
 
-                    return false;
-                }
                 return false;
             }
             catch (Exception ex)

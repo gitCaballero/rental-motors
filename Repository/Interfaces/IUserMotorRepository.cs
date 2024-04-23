@@ -4,9 +4,9 @@ namespace RentalMotor.Api.Repository.Interfaces
 {
     public interface IUserMotorRepository
     {
-        IEnumerable<UserMotor> Get();
+        IEnumerable<UserMotor> Get(string ?id, string ?plate);
         
-        UserMotor GetById(string id);
+        UserMotor GetByUserId(string id);
         
         void Add(UserMotor user);
                 

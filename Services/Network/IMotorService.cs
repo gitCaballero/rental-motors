@@ -6,6 +6,6 @@ namespace RentalMotor.Api.Services.Network
     {
         Task<IEnumerable<ResponseMotorModel>> GetMotorsAvailableToRental();
       
-        Task<bool> ContractMotor(MotorModelContract models);
+        Task<bool> UpdateMotorFlag(MotorModelContract models);
     }
 }

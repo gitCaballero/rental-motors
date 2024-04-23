@@ -1,4 +1,5 @@
-﻿using RentalMotor.Api.Models;
+﻿using RentalMotor.Api.Entities;
+using RentalMotor.Api.Models;
 using RentalMotor.Api.Models.Requests;
 using RentalMotor.Api.Models.Responses;
 
@@ -6,13 +7,11 @@ namespace RentalMotor.Api.Services.Interfaces
 {
     public interface IRentalUserMotorService
     {
-        IEnumerable<ResponseContractUserMotorModel> Get();
-      
-        ResponseContractUserMotorModel GetById(string id);
+        Task<IEnumerable<ResponseContractUserMotorModel>> Get(string ?id, string? plate);
         
-        Task<IEnumerable<ResponseContractUserFoorPlanModel>> Add(ResponseMotorModel motorModel, RequestUserMotorModel user);
+        Task<bool> Add(ResponseMotorModel motorModel, RequestUserMotorModel user);
         
-        void Update(RequestUserMotorModel user);
+        Task<ResponseCnhModel> UpdateCnh(RequestCnhUpdateModel cnhImage);
         
         void Delete(string id);
         

@@ -12,40 +12,46 @@ using System.Reflection;
 
 namespace RentalMotor.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("rental-motors")]
     [ApiController]
     public class RentalMotorController : ControllerBase
     {
         private readonly ILogger<RentalMotorController> _logger;
         private readonly IRentalUserMotorService _rentalUserMotorService;
-        private readonly IMotorService _motorService;
         public readonly IFoorPlanService _foorPlanService;
 
 
-        public RentalMotorController(ILogger<RentalMotorController> logger, IRentalUserMotorService userMotorService, IMotorService motorService, IFoorPlanService foorPlanService)
+        public RentalMotorController(ILogger<RentalMotorController> logger, IRentalUserMotorService userMotorService, IFoorPlanService foorPlanService)
         {
             _logger = logger;
             _rentalUserMotorService = userMotorService;
-            _motorService = motorService;
             _foorPlanService = foorPlanService;
         }
 
         /// <summary>
-        /// contracts - Method to search all contracts users motors
+        /// Search a or all contracts user motor by userId or plate motor
         /// </summary>
+        /// <remarks>
+        /// Example:
+        /// 
+        ///     GET /rental-motors?userId=123
+        ///     
+        /// </remarks>
+        /// <param name="userId">User Id</param>
+        /// <param name="plate">Plate Motor</param>
         [ProducesResponseType(typeof(Response<List<ResponseContractUserMotorModel>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("contracts")]
+        [HttpGet]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] string? userId, string? plate)
         {
             try
             {
-                _logger.LogInformation($"Searching all contracts - {MethodBase.GetCurrentMethod().Name}");
+                _logger.LogInformation($"Searching rental motors - {MethodBase.GetCurrentMethod().Name}");
 
-                var rentalMotors = await Task.Run(() => _rentalUserMotorService.Get());
+                var rentalMotors = await Task.Run(() => _rentalUserMotorService.Get(userId, plate));
 
-                _logger.LogInformation($"Returning {rentalMotors.Count()} contracts - {MethodBase.GetCurrentMethod().Name}");
+                _logger.LogInformation($"Returning {rentalMotors.Count()} contracts  - {MethodBase.GetCurrentMethod().Name}");
 
                 return Ok(rentalMotors);
 
@@ -59,82 +65,18 @@ namespace RentalMotor.Api.Controllers
 
 
         /// <summary>
-        /// contractById - Method to search by contracts id 
+        /// Create a contract user motor
         /// </summary>
         /// <remarks>
         /// Example:
         /// 
-        ///     GET /contractById?id={{id}}
-        ///     
-        /// </remarks>
-        /// <param name="id">Id contract</param>
-        [ProducesResponseType(typeof(Response<ResponseContractUserMotorModel>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Response<ResponseContractUserMotorModel>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Response<ResponseContractUserMotorModel>), StatusCodes.Status404NotFound)]
-        [HttpGet("contractById")]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Get(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    return BadRequest("Id required");
-
-                var contract = await Task.Run(() => _rentalUserMotorService.GetById(id));
-                if (contract != null)
-                    return Ok(contract);
-
-                return NotFound(id);
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-        /// <summary>
-        /// motors-avaliables - Method to search motors availables
-        /// </summary>
-        /// <remarks>
-        /// Example:
-        /// 
-        ///     GET /motors-availables
-        ///     
-        /// </remarks>
-        [ProducesResponseType(typeof(Response<List<ResponseContractUserMotorModel>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("motors-avaliables")]
-        [Authorize(Roles = "admin,delivery")]
-        public async Task<IActionResult> GetMotorsAvailableToRental()
-        {
-            try
-            {
-                var motorsAvailables = await Task.Run(() => _motorService.GetMotorsAvailableToRental());
-
-                return Ok(motorsAvailables);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-        /// <summary>
-        /// create - Create a contract user motor
-        /// </summary>
-        /// <remarks>
-        /// Example:
-        /// 
-        ///     POST /create
+        ///     POST /rental-motors
         ///     
         /// </remarks>
         /// <param name="userMotorModel">Object to be created</param>
         [ProducesResponseType(typeof(Response<ResponseContractUserMotorModel>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(Response<ResponseContractUserMotorModel>), StatusCodes.Status400BadRequest)]
-        [HttpPost("create")]
+        [HttpPost]
         [Authorize(Roles = "admin,delivery")]
         public async Task<ActionResult> CreateContractUserMotor([FromBody] RequestUserMotorModel userMotorModel)
         {
@@ -145,16 +87,17 @@ namespace RentalMotor.Api.Controllers
                 if (!validatedModel.IsValid)
                     return BadRequest(validatedModel.Message);
 
-                var currentContract = await Task.Run(() => _rentalUserMotorService.Add(validatedModel.MotorAvailable, userMotorModel));
+                var flag = await Task.Run(() => _rentalUserMotorService.Add(validatedModel.MotorAvailable, userMotorModel));
 
-                if (currentContract.Count() == 0)
+                if (!flag)
                     return BadRequest($"It was not possible to make the rental");
 
-                var contract = currentContract.FirstOrDefault();
+                var result = await _rentalUserMotorService.Get(null, userMotorModel.ContractUserFoorPlanModel!.FirstOrDefault()!.MotorPlate);
 
-                _logger.LogInformation($"Motorycle {contract!.MotorPlate} is rented for user {userMotorModel.CpfCnpj} - {MethodBase.GetCurrentMethod()!.Name}");
 
-                return Ok(contract);
+                _logger.LogInformation($"Motorycle {result.FirstOrDefault()!.ContractUserFoorPlanModel!.FirstOrDefault()!.MotorPlate} is rented for user {userMotorModel.CpfCnpj} - {MethodBase.GetCurrentMethod()!.Name}");
+
+                return StatusCode(StatusCodes.Status201Created, result);
 
             }
             catch (Exception ex)
@@ -166,48 +109,32 @@ namespace RentalMotor.Api.Controllers
 
 
         /// <summary>
-        /// update - update a contract user motor
+        /// Update the cnh image the loged user
         /// </summary>
         /// <remarks>
         /// Example:
         /// 
         ///     POST /update
         ///     {
-        ///         "id": "12346789",
-        ///         "name": "Pepe",
-        ///         "secondName": "Ostias",
-        ///         "email": "pepe@example.com",    
-        ///         "phoneNumber": "34234567",
-        ///         "cpfCnpj": "222.222.222-22",
-        ///         "address": {
-        ///                     "id": "12346789",
-        ///                     "street": "Calle1",
-        ///                     "city": "São Paulo",
-        ///                     "state": "São Paulo",
-        ///                     "postalCode": "02700-000",
-        ///                     "country": "Brasil",
-        ///                     "number": "10",
-        ///                     "complement": "casa"
-        ///          }
-        ///      }
+        ///         "img": "12346789"
+        ///     }
         ///     
         /// </remarks>
-        /// <param name="userMotorModel">Object to be update</param>
-        [ProducesResponseType(typeof(Response<IdentityResult>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Response<IdentityResult>), StatusCodes.Status400BadRequest)]
-        [HttpPut("update")]
+        /// <param name="cnhImage">Object to be update</param>
+        [ProducesResponseType(typeof(Response<ResponseCnhModel>), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(Response<ResponseCnhModel>), StatusCodes.Status400BadRequest)]
+        [HttpPut]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Put([FromBody] RequestUserMotorModel userMotorModel)
+        public async Task<IActionResult> Put([FromBody] RequestCnhUpdateModel cnhImage)
         {
             try
             {
+                var userUpdated = await Task.Run(() => _rentalUserMotorService.UpdateCnh(cnhImage));
 
-                await Task.Run(() => _rentalUserMotorService.Update(userMotorModel));
+                _logger.LogInformation($"Updating image cnh - {MethodBase.GetCurrentMethod().Name}");
 
-                _logger.LogInformation($"Updating contract user motor {userMotorModel.CpfCnpj} - {MethodBase.GetCurrentMethod().Name}");
+                return StatusCode(StatusCodes.Status202Accepted, userUpdated);
 
-
-                return Ok(true);
             }
             catch (Exception ex)
             {
@@ -219,34 +146,35 @@ namespace RentalMotor.Api.Controllers
 
 
         /// <summary>
-        /// delete - delete user motor register
+        /// delete - delete user by id
         /// </summary>
         /// <remarks>
         /// Example:
         /// 
-        ///     DELETE /delete?userMotorId={{userMotorId}}
+        ///     DELETE /drental-motors?userMotorId=decc008c-0212-4092-8170-9db7d7da723c
         ///    
         /// </remarks>
-        [ProducesResponseType(typeof(Response<IdentityResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Response<IdentityResult>), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(Response<IdentityResult>), StatusCodes.Status400BadRequest)]
-        [HttpDelete("delete")]
+        [HttpDelete]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Delete(string userMotorId)
+        public async Task<IActionResult> Delete([FromQuery] string userId)
         {
             try
             {
-                if (string.IsNullOrEmpty(userMotorId))
+                if (string.IsNullOrEmpty(userId))
                     return BadRequest("userMotorId is Required");
 
-                _logger.LogInformation($"Deleting User Motor {userMotorId}- {MethodBase.GetCurrentMethod().Name}");
+                _logger.LogInformation($"Deleting User Motor {userId}- {MethodBase.GetCurrentMethod().Name}");
 
-                await Task.Run(() => _rentalUserMotorService.Delete(userMotorId));
+                await Task.Run(() => _rentalUserMotorService.Delete(userId));
 
-                return Ok(true);
+                return StatusCode(StatusCodes.Status204NoContent);
+
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Deleting User Motor {userMotorId}- {MethodBase.GetCurrentMethod().Name}");
+                _logger.LogError($"Deleting User Motor {userId}- {MethodBase.GetCurrentMethod().Name}");
 
                 return BadRequest(ex.Message);
             }

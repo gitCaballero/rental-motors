@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNet.SignalR.Client.Http;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -12,7 +11,6 @@ using RentalMotor.Api.Repository.Interfaces;
 using RentalMotor.Api.Services.Implements;
 using RentalMotor.Api.Services.Interfaces;
 using RentalMotor.Api.Services.Network;
-using System.Configuration;
 using System.Reflection;
 using System.Text;
 
@@ -39,7 +37,7 @@ builder.Services.Configure<RentalMotorConfig>(options => configuration.GetSectio
 
 
 builder.Services.AddDbContext<RentalMotorDbContext>(
-        options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database"),
+        options => options.UseNpgsql(builder.Configuration.GetConnectionString("Connection"),
         b => b.MigrationsAssembly("RentalMotor.Api")));
 
 builder.Services.AddScoped<IUserMotorRepository, UserMotorRepository>(); 
