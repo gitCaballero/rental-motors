@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RentalMotor.Api.Repository.Context;
+using RentalMotor.Api.Repository.Data;
 
 namespace RentalMotor.Api.Extensions
 {
@@ -9,7 +9,7 @@ namespace RentalMotor.Api.Extensions
         {
             using IServiceScope scope = app.ApplicationServices.CreateScope();
 
-            using RentalMotorDbContext dbContext = scope.ServiceProvider.GetRequiredService<RentalMotorDbContext>();
+            using ContractPlanUserMotorDbContext dbContext = scope.ServiceProvider.GetRequiredService<ContractPlanUserMotorDbContext>();
 
             dbContext.Database.Migrate();
         }

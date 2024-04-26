@@ -4,18 +4,18 @@ namespace RentalMotor.Api.Repository.Interfaces
 {
     public interface IUserMotorRepository
     {
-        IEnumerable<UserMotor> Get(string ?id, string ?plate);
+        IEnumerable<User> Get(string ?id, string ?plate);
         
-        UserMotor GetByUserId(string id);
+        User GetByUserId(string id);
         
-        void Add(UserMotor user);
+        void Add(User user);
                 
-        void Update(UserMotor user);
+        void Update(User user);
         
         void Delete(string id);
 
         Cnh GetCnh(int cnhNumber);
 
-        UserMotor GetByCpfCnpj(string cpfCnpj);
+        User GetByCpfCnpj(string cpfCnpj);
     }
 }

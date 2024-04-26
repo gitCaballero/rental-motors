@@ -1,68 +1,68 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RentalMotor.Api.Entities;
-using RentalMotor.Api.Repository.Context;
+using RentalMotor.Api.Repository.Data ;
 using RentalMotor.Api.Repository.Interfaces;
 
 namespace RentalMotor.Api.Repository.Implementations
 {
     public class UserMotorRepository : IUserMotorRepository
     {
-        private readonly RentalMotorDbContext _context;
+        private readonly ContractPlanUserMotorDbContext _context;
 
-        public UserMotorRepository(RentalMotorDbContext context)
+        public UserMotorRepository(ContractPlanUserMotorDbContext context)
         {
             _context = context;
         }
 
-        public IEnumerable<UserMotor> Get(string ?id, string ?plate)
+        public IEnumerable<User> Get(string ?cpfCnpj, string ?plate)
         {
-            if (id != null && plate == null)
-                return _context.usersMotors.Where(x => x.UserId == id).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
+            if (cpfCnpj != null && plate == null)
+                return _context.UsersMotors.Where(x => x.CpfCnpj == cpfCnpj).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
 
-            if (id == null && plate != null)
-                return _context.usersMotors.Where(x => x.ContractUserFoorPlan!.FirstOrDefault()!.MotorPlate.ToUpper() == plate.ToUpper()).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
+            if (cpfCnpj == null && plate != null)
+                return _context.UsersMotors.Where(x => x.ContractUserFoorPlan!.MotorPlate.Equals(plate, StringComparison.CurrentCultureIgnoreCase)).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
 
-            if (id != null && plate != null)
-                return _context.usersMotors.Where(x => x.ContractUserFoorPlan!.FirstOrDefault()!.MotorPlate.ToUpper() == plate.ToUpper() && x.UserId == id).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
+            if (cpfCnpj != null && plate != null)
+                return _context.UsersMotors.Where(x => x.ContractUserFoorPlan!.MotorPlate.Equals(plate, StringComparison.CurrentCultureIgnoreCase) && x.UserId == cpfCnpj).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
 
-            return _context.usersMotors.Include(c => c.ContractUserFoorPlan).Include(c => c.Cnh).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
+            return _context.UsersMotors.Include(c => c.ContractUserFoorPlan).Include(c => c.Cnh).Include(h => h.Cnh).Include(c => c.ContractUserFoorPlan);
         }
 
-        public UserMotor GetByUserId(string id)
+        public User GetByUserId(string id)
         {
-            return _context.usersMotors.Where(u => u.UserId == id).FirstOrDefault()!;
+            return _context.UsersMotors.Where(u => u.UserId == id).FirstOrDefault()!;
         }
         
-        public UserMotor GetByCpfCnpj(string cpfCnpj)
+        public User GetByCpfCnpj(string cpfCnpj)
         {
-            return _context.usersMotors.Where(u => u.CpfCnpj == cpfCnpj).FirstOrDefault()!;
+            return _context.UsersMotors.Where(u => u.CpfCnpj == cpfCnpj).FirstOrDefault()!;
         }
 
         public Cnh GetCnh(int cnhNumber) 
         {
-            return _context.cnhs.Where(x => x.NumberCnh == cnhNumber).FirstOrDefault()!;
+            return _context.Cnhs.Where(x => x.NumberCnh == cnhNumber).FirstOrDefault()!;
         }
 
-        public void Add(UserMotor userMotor)
+        public void Add(User userMotor)
         {
-            _context.usersMotors.Add(userMotor);
-            _context.SaveChanges();
+            _context.UsersMotors.Add(userMotor);
+            _context.SaveChangesAsync();
         }
 
-        public void Update(UserMotor user)
+        public void Update(User user)
         {
             _context.Update(user);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
 
         }
 
         public void Delete(string id)
         {
-            var user = _context.usersMotors.FirstOrDefault(u => u.Id == id);
+            var user = _context.UsersMotors.FirstOrDefault(u => u.Id == id);
             if (user != null)
             {
-                _context.usersMotors.Remove(user);
-                _context.SaveChanges();
+                _context.UsersMotors.Remove(user);
+                _context.SaveChangesAsync();
             }
         }
     }

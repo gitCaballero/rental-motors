@@ -2,7 +2,7 @@
 
 namespace RentalMotor.Api.Models.Requests
 {
-    public class RequestContractUserFoorPlanModel
+    public class RequestContractPlanUserMotorModel
     {
         public required int FloorPlanCountDay { get; set; }
 

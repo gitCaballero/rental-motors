@@ -7,11 +7,11 @@ namespace RentalMotor.Api.Services.Responsabilities
     public static class BuildContracts
     {
 
-        public static UserMotor BuildContract(RequestUserMotorModel userMotorModel, FoorPlan foorPlan, IMapper _mapper)
+        public static User BuildContract(RequestContractPlanUserMotorModel contractPlanUserMotorModel, Plan foorPlan, IMapper _mapper)
         {
 
-            var countDay = userMotorModel.ContractUserFoorPlanModel!.First().FloorPlanCountDay;
-            var forCastEndDate = DateTime.Parse(userMotorModel.ContractUserFoorPlanModel!.First().ForecastEndDate);
+            var countDay = contractPlanUserMotorModel.FloorPlanCountDay;
+            var forCastEndDate = DateTime.Parse(contractPlanUserMotorModel.ForecastEndDate);
 
             var starDate = DateTime.Now.AddDays(1);
             var endDate = starDate.AddDays(countDay);
@@ -28,30 +28,23 @@ namespace RentalMotor.Api.Services.Responsabilities
                 penaltyOverDaysValue = days * 50;
 
 
-            var userMotor = _mapper.Map<UserMotor>(userMotorModel);
+            var userMotor = _mapper.Map<User>(contractPlanUserMotorModel);
 
 
-            userMotor.ContractUserFoorPlan = new List<ContractUserFoorPlan>
-               {
-                    (new()
-                            {
-                                EndDate = endDate.ToShortDateString(),
-                                FloorPlanCountDay = countDay,
-                                ForecastEndDate = forCastEndDate.ToShortDateString(),
-                                StarDate = starDate.ToShortDateString(),
-                                PenaltyMissingDaysValue = penaltyMissingDaysValue,
-                                PenaltyOverDaysValue = penaltyOverDaysValue,
-                                MotorPlate = userMotorModel.ContractUserFoorPlanModel!.Select(x => x.MotorPlate).FirstOrDefault()!,
-                                CountCurrentDays = days,
-                                CostPerDay = foorPlan.CostPerDay,
-                                CountDay = foorPlan.CountDay,
-                                PenaltyPorcent = foorPlan.PenaltyPorcent,
-
-                            })
-                };
-
-
-            userMotor.Cnh!.CnhCategories = userMotorModel.Cnh!.CnhCategories!;
+            userMotor.ContractUserFoorPlan = new ContractPlanUserMotor
+            {
+                EndDate = endDate.ToShortDateString(),
+                FloorPlanCountDay = countDay,
+                ForecastEndDate = forCastEndDate.ToShortDateString(),
+                StarDate = starDate.ToShortDateString(),
+                PenaltyMissingDaysValue = penaltyMissingDaysValue,
+                PenaltyOverDaysValue = penaltyOverDaysValue,
+                MotorPlate = contractPlanUserMotorModel.MotorPlate,
+                CountCurrentDays = days,
+                CostPerDay = foorPlan.CostPerDay,
+                CountDay = foorPlan.CountDay,
+                PenaltyPorcent = foorPlan.PenaltyPorcent
+            };
             return userMotor;
         }
     }

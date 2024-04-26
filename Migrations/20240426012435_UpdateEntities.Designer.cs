@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RentalMotor.Api.Repository.Data;
@@ -11,9 +12,11 @@ using RentalMotor.Api.Repository.Data;
 namespace RentalMotor.Api.Migrations
 {
     [DbContext(typeof(ContractPlanUserMotorDbContext))]
-    partial class RentalMotorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240426012435_UpdateEntities")]
+    partial class UpdateEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

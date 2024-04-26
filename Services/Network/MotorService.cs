@@ -22,9 +22,9 @@ namespace RentalMotor.Api.Services.Network
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _jwtToken);
         }
       
-        public async Task<IEnumerable<ResponseMotorModel>> GetMotorsAvailableToRental()
+        public async Task<IEnumerable<MotorModel>> GetMotorsAvailableToRental()
         {
-            var motorsAvaliables = new List<ResponseMotorModel>();
+            var motorsAvaliables = new List<MotorModel>();
             try
             {
                 {
@@ -35,7 +35,7 @@ namespace RentalMotor.Api.Services.Network
                     {
                         var result = response.Content.ReadAsStringAsync().Result;
 
-                        motorsAvaliables = JsonConvert.DeserializeObject<IEnumerable<ResponseMotorModel>>(result).ToList();
+                        motorsAvaliables = await Task.Run(() => JsonConvert.DeserializeObject<IEnumerable<MotorModel>>(result).ToList());
 
                         return motorsAvaliables;
                     }
@@ -49,13 +49,13 @@ namespace RentalMotor.Api.Services.Network
 
         }
 
-        public async Task<bool> UpdateMotorFlag(MotorModelContract motorContract)
+        public async Task<bool> UpdateMotorFlag(MotorContractModel motorContract)
         {
             try
             {
                 motorContract.IsAvalable = 0;
 
-                var response = await _httpClient.PutAsJsonAsync<MotorModelContract>($"{_config.Host}{_config.Path}", motorContract);
+                var response = await _httpClient.PutAsJsonAsync<MotorContractModel>($"{_config.Host}{_config.Path}", motorContract);
 
                 if (response.IsSuccessStatusCode)
                     return true;

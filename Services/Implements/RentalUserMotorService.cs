@@ -7,7 +7,6 @@ using RentalMotor.Api.Repository.Interfaces;
 using RentalMotor.Api.Services.Interfaces;
 using RentalMotor.Api.Services.Network;
 using RentalMotor.Api.Services.Responsabilities;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace RentalMotor.Api.Services.Implements
@@ -15,45 +14,74 @@ namespace RentalMotor.Api.Services.Implements
     public class RentalUserMotorService : IRentalUserMotorService
     {
         public readonly IUserMotorRepository _userMotorRepository;
-        public readonly IFoorPlanService _foorPlanService;
+        public readonly IContractPlanService _foorPlanService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMotorService _motorService;
-        private string UserId;
-        private string UserName;
+        private readonly string UserId;
+        private readonly string UserName;
 
-        public RentalUserMotorService(IUserMotorRepository userMotorRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IFoorPlanService foorPlanService, IMotorService motorService)
+        public RentalUserMotorService(IUserMotorRepository userMotorRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IContractPlanService foorPlanService, IMotorService motorService)
         {
             _foorPlanService = foorPlanService;
             _userMotorRepository = userMotorRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _motorService = motorService;
-            UserId = this._httpContextAccessor.HttpContext!.User.Claims.Where(x => x.Type.Contains("nameidentifier")).FirstOrDefault()!.Value;
-            UserName = this._httpContextAccessor.HttpContext.User.Claims.Where(x => x.Type.Contains("emailaddress")).FirstOrDefault()!.Value;
+            UserId = _httpContextAccessor.HttpContext!.User.Claims.Where(x => x.Type.Contains("nameidentifier")).FirstOrDefault()!.Value;
+            UserName = _httpContextAccessor.HttpContext.User.Claims.Where(x => x.Type.Contains("emailaddress")).FirstOrDefault()!.Value;
         }
 
-        public async Task<bool> Add(ResponseMotorModel motorModel, RequestUserMotorModel userMotorModel)
+        public bool AddUser(RequestUserMotorModel? userMotorModel)
         {
-            var contractUserFoorPlans = new List<ResponseContractUserFoorPlanModel>();
+            var userMotor = new User();
+
             try
             {
-                var motorModelContract = _mapper.Map<MotorModelContract>(motorModel);
+                userMotor = _mapper.Map<User>(userMotorModel);
+                userMotor.UserName = UserName;
+                userMotor.UserId = UserId;
 
-                var flag = await _motorService.UpdateMotorFlag(motorModelContract);
+                var filePath = Path.Combine(Environment.CurrentDirectory, userMotorModel!.Cnh!.ImagenCnh.FileName);
+
+                using Stream stream = new FileStream(filePath, FileMode.Create);
+                userMotorModel.Cnh.ImagenCnh.CopyTo(stream);
+
+                userMotor.Cnh!.ImagePath = filePath;
+
+                _userMotorRepository.Add(userMotor);
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public bool AddContract(MotorModel? motorModel, RequestContractPlanUserMotorModel? contractPlanUserMotorModel)
+        {
+            var contractUserMotor = new ContractPlanUserMotor();
+            var motorContractModel = new MotorContractModel();
+
+            try
+            {
+                motorContractModel = _mapper.Map<MotorContractModel>(motorModel);
+
+                var flag =  _motorService.UpdateMotorFlag(motorContractModel).Result;
 
                 if (!flag)
                     return false;
 
-                var countDay = userMotorModel.ContractUserFoorPlanModel!.First().FloorPlanCountDay;
+                var countDay = contractUserMotor.FloorPlanCountDay;
                 var foorPlan = _foorPlanService.GetByCountDay(countDay);
-                var forCastEndDate = DateTime.Parse(userMotorModel.ContractUserFoorPlanModel!.First().ForecastEndDate);
+                var forCastEndDate = DateTime.Parse(contractUserMotor.ForecastEndDate);
 
-                var userMotor = BuildContracts.BuildContract(userMotorModel, foorPlan, _mapper);
-                userMotor.UserName = UserName;
-                userMotor.UserId = UserId;
+                var user = BuildContracts.BuildContract(contractPlanUserMotorModel, foorPlan, _mapper);
+                user.Id = UserId;
 
-                await Task.Run(() => _userMotorRepository.Add(userMotor));
+                _userMotorRepository.Update(user);
 
                 return true;
             }
@@ -68,52 +96,62 @@ namespace RentalMotor.Api.Services.Implements
             _userMotorRepository.Delete(id);
         }
 
-        public async Task<IEnumerable<ResponseContractUserMotorModel>> Get(string? id, string? plate)
+        public IEnumerable<ResponseContractUserMotorModel> Get(string? cpfCnpj, string? plate)
         {
             var userMotorModels = new List<ResponseContractUserMotorModel>();
-            var usersMotors = await Task.Run(() => _userMotorRepository.Get(id, plate));
-            if (usersMotors != null && usersMotors.Any())
+            var usersMotors = _userMotorRepository.Get(cpfCnpj, plate);
+            if (usersMotors.Any())
             {
                 foreach (var userMotor in usersMotors)
                 {
                     var userMotorModel = _mapper.Map<ResponseContractUserMotorModel>(userMotor);
-
-                    foreach (var item in userMotor.ContractUserFoorPlan!)
+                    if (userMotorModel.ContractUserFoorPlanModel != null)
                     {
-                        userMotorModel.ContractUserFoorPlanModel!.Add(new()
+                        userMotorModel.ContractUserFoorPlanModel = new()
                         {
-                            EndDate = item.EndDate,
-                            FloorPlanCountDay = item.FloorPlanCountDay,
-                            ForecastEndDate = item.ForecastEndDate,
-                            Id = item.Id,
-                            MotorPlate = item.MotorPlate,
-                            PenaltyMissingDaysValue = item.PenaltyMissingDaysValue,
-                            PenaltyOverDaysValue = item.PenaltyOverDaysValue,
-                            StarDate = item.StarDate,
-                            CountCurrentDays = item.CountCurrentDays
-                        });
+
+                            EndDate = userMotor.ContractUserFoorPlan!.EndDate,
+                            FloorPlanCountDay = userMotor.ContractUserFoorPlan.FloorPlanCountDay,
+                            ForecastEndDate = userMotor.ContractUserFoorPlan.ForecastEndDate,
+                            Id = userMotor.ContractUserFoorPlan.Id,
+                            MotorPlate = userMotor.ContractUserFoorPlan.MotorPlate,
+                            PenaltyMissingDaysValue = userMotor.ContractUserFoorPlan.PenaltyMissingDaysValue,
+                            PenaltyOverDaysValue = userMotor.ContractUserFoorPlan.PenaltyOverDaysValue,
+                            StarDate = userMotor.ContractUserFoorPlan!.StarDate,
+                            CountCurrentDays = userMotor.ContractUserFoorPlan!.CountCurrentDays
+                        };
                         userMotorModels.Add(userMotorModel);
                     }
+                    else
+                        userMotorModels.Add(userMotorModel);
+
                 }
                 return userMotorModels;
             }
             return userMotorModels;
         }
 
-        public async Task<ResponseCnhModel> UpdateCnh(RequestCnhUpdateModel cnhUserMotorImage)
+        public ResponseCnhModel UpdateCnh(IFormFile cnhImage)
         {
             var userId = UserId;
-            var userMotor = await Task.Run(() => _userMotorRepository.Get(userId, null).FirstOrDefault());
-            userMotor!.Cnh!.ImagenCnh = cnhUserMotorImage.ImagenCnh;
+            var userMotor = _userMotorRepository.Get(userId, null).FirstOrDefault();
+
+            var filePath = Path.Combine(Environment.CurrentDirectory, cnhImage.FileName);
+
+            using Stream stream = new FileStream(filePath, FileMode.Create);
+            cnhImage.CopyTo(stream);
+
+            userMotor.Cnh!.ImagePath = filePath;
+
             _userMotorRepository.Update(userMotor);
 
-            userMotor = await Task.Run(() => _userMotorRepository.Get(userId, null).FirstOrDefault());
+            userMotor = _userMotorRepository.Get(userId, null).FirstOrDefault();
 
             var result = _mapper.Map<ResponseCnhModel>(userMotor!.Cnh);
             return result;
         }
 
-        public async Task<ModelControllerValidation> ValidInputsController(RequestUserMotorModel userMotorModel)
+        public ModelControllerValidation ValidInputsController(RequestUserMotorModel userMotorModel)
         {
             var modelValided = new ModelControllerValidation();
             modelValided.Message = string.Empty;
@@ -126,17 +164,11 @@ namespace RentalMotor.Api.Services.Implements
                 return modelValided;
             }
 
+
             var existCpfCnpj = _userMotorRepository.GetByCpfCnpj(userMotorModel.CpfCnpj);
             if (existCpfCnpj != null)
             {
                 modelValided.Message = $"Cpf or Cnpj {existCpfCnpj.CpfCnpj} is already registered";
-                return modelValided;
-            }
-
-            var existCnh = _userMotorRepository.GetCnh(userMotorModel.Cnh!.NumberCnh);
-            if (existCnh != null)
-            {
-                modelValided.Message = $"Cnh {existCnh!.NumberCnh} is already registered";
                 return modelValided;
             }
 
@@ -148,52 +180,104 @@ namespace RentalMotor.Api.Services.Implements
                 return modelValided;
             }
 
+            var existCnh = _userMotorRepository.GetCnh(userMotorModel.Cnh!.NumberCnh);
+            if (existCnh != null)
+            {
+                modelValided.Message = $"Cnh {existCnh!.NumberCnh} is already registered";
+                return modelValided;
+            }
+
+
             string pattern = @"^[*a*,b]+$";
             var match = Regex.Match(string.Join(",", userMotorModel.Cnh!.CnhCategories!), pattern, RegexOptions.IgnoreCase);
-
             if (!match.Success)
             {
                 modelValided.Message = "You are not qualified to rent a motorcycle or Cnh category invalid";
                 return modelValided;
             }
 
-            DateTime forecastEndDate;
-            isValidateDate = DateTime.TryParse(userMotorModel.ContractUserFoorPlanModel!.Select(x => x.ForecastEndDate).First(), out forecastEndDate);
-            if (!isValidateDate)
-            {
-                modelValided.Message = "ForecastEndDate invalid";
-                return modelValided;
-            }
-
-
-
-            if (forecastEndDate < DateTime.Now.AddDays(1))
-            {
-                modelValided.Message = "Expected delivery date should be as of tomorrow.";
-                return modelValided;
-            }
-
-            var foorPlan = _foorPlanService.GetByCountDay(userMotorModel.ContractUserFoorPlanModel!.FirstOrDefault()!.FloorPlanCountDay);
-            if (foorPlan == null)
-            {
-                modelValided.Message = "There are no plans for that number of days";
-                return modelValided;
-            }
-
-            var motorsAvailable = await _motorService.GetMotorsAvailableToRental();
-
-            var motorPlateRequest = userMotorModel.ContractUserFoorPlanModel!.First().MotorPlate;
-
-            var motorAvailable = motorsAvailable.Where(x => x.Plate!.ToUpper() == motorPlateRequest.ToUpper());
-
-            if (motorAvailable.Count() == 0)
-            {
-                modelValided.Message = $"Motorcycle {string.Join(',', motorPlateRequest)} is not available to rented";
-                return modelValided;
-            }
-            modelValided.MotorAvailable = motorAvailable.FirstOrDefault()!;
             modelValided.IsValid = true;
             return modelValided;
+
         }
+
+        public ModelControllerValidation ValidInputsController(IFormFile cnhImage)
+        {
+
+            var modelValided = new ModelControllerValidation();
+            modelValided.Message = string.Empty;
+            modelValided.IsValid = false;
+
+            var existUser = _userMotorRepository.GetByUserId(UserId);
+            if (existUser == null)
+            {
+                modelValided.Message = $"User {existUser.UserName} not already registered";
+                return modelValided;
+            }
+
+            modelValided.IsValid = true;
+            return modelValided;
+
+        }
+
+        public ModelControllerValidation ValidInputsController(RequestContractPlanUserMotorModel contractPlanUserMotorModel)
+        {
+            var modelValided = new ModelControllerValidation();
+            modelValided.Message = string.Empty;
+            modelValided.IsValid = false;
+
+            var existUser = _userMotorRepository.GetByUserId(UserId);
+            if (existUser != null)
+            {
+                if (existUser.ContractUserFoorPlan != null)
+                {
+                    modelValided.Message = $"User {existUser.UserName} is already registered with contract registerd";
+                    return modelValided;
+                }
+
+
+                DateTime forecastEndDate;
+                var forecastEndValid = DateTime.TryParse(contractPlanUserMotorModel.ForecastEndDate, out forecastEndDate);
+                if (!forecastEndValid)
+                {
+                    modelValided.Message = "ForecastEndDate invalid";
+                    return modelValided;
+                }
+
+                if (forecastEndDate < DateTime.Now.AddDays(1))
+                {
+                    modelValided.Message = "Expected delivery date should be as of tomorrow.";
+                    return modelValided;
+                }
+
+                var foorPlan = Task.Run(() => _foorPlanService.GetByCountDay(contractPlanUserMotorModel.FloorPlanCountDay));
+                if (foorPlan == null)
+                {
+                    modelValided.Message = "There are no plans for that number of days";
+                    return modelValided;
+                }
+
+                var motorsAvailable =  _motorService.GetMotorsAvailableToRental().Result;
+
+                var motorPlateRequest = contractPlanUserMotorModel.MotorPlate;
+
+                var motorAvailable = motorsAvailable.Where(x => x.Plate!.Equals(motorPlateRequest, StringComparison.CurrentCultureIgnoreCase));
+
+                if (!motorAvailable.Any())
+                {
+                    modelValided.Message = $"Motorcycle {string.Join(',', motorPlateRequest)} is not available to rented";
+                    return modelValided;
+                }
+                modelValided.MotorAvailable = motorAvailable.FirstOrDefault()!;
+                modelValided.IsValid = true;
+                return modelValided;
+            }
+
+            modelValided.Message = $"User {UserName} not is already registered";
+
+            return modelValided;
+
+        }
+
     }
 }

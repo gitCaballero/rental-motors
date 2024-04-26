@@ -1,9 +1,9 @@
 ﻿namespace RentalMotor.Api.Entities
 {
-    public class ContractUserFoorPlan
+    public class ContractPlanUserMotor
     {
         public string Id { get; set; }
-        public UserMotor UserMotor{ get; set; }
+        public User UserMotor{ get; set; }
         public int CostPerDay { get; set; }
         public int CountDay { get; set; }
         public decimal PenaltyPorcent { get; set; }

@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using RentalMotor.Api.Repository.Context;
+using RentalMotor.Api.Repository.Data;
 
 #nullable disable
 
 namespace RentalMotor.Api.Migrations
 {
-    [DbContext(typeof(RentalMotorDbContext))]
+    [DbContext(typeof(ContractPlanUserMotorDbContext))]
     [Migration("20240422162558_Initials")]
     partial class Initials
     {

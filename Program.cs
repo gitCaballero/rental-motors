@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RentalMotor.Api.Configurations;
 using RentalMotor.Api.Extensions;
 using RentalMotor.Api.Mapper;
-using RentalMotor.Api.Repository.Context;
+using RentalMotor.Api.Repository.Data;
 using RentalMotor.Api.Repository.Implementations;
 using RentalMotor.Api.Repository.Interfaces;
 using RentalMotor.Api.Services.Implements;
@@ -36,16 +37,16 @@ builder.Services.Configure<RentalMotorConfig>(options => configuration.GetSectio
 
 
 
-builder.Services.AddDbContext<RentalMotorDbContext>(
+builder.Services.AddDbContext<ContractPlanUserMotorDbContext>(
         options => options.UseNpgsql(builder.Configuration.GetConnectionString("Connection"),
-        b => b.MigrationsAssembly("RentalMotor.Api")));
+        b => b.MigrationsAssembly("RentalMotor.Api")),ServiceLifetime.Transient);
 
 builder.Services.AddScoped<IUserMotorRepository, UserMotorRepository>(); 
-builder.Services.AddScoped<IFoorPlanRepository, FoorPlanRepository>(); 
+builder.Services.AddScoped<IContractPlanRepository, ContractPlanRepository>(); 
 builder.Services.AddScoped<IContractUserFoorPlanRepository, ContractUserFoorPlanRepository>(); 
 builder.Services.AddScoped<IRentalUserMotorService, RentalUserMotorService>(); 
 builder.Services.AddScoped<IMotorService, MotorService>(); 
-builder.Services.AddScoped<IFoorPlanService, FoorPlanService>(); 
+builder.Services.AddScoped<IContractPlanService, ContractPlanService>(); 
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -100,7 +101,7 @@ builder.Services.AddAuthentication(x =>
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options => options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    .AddJwtBearer(options =>  options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
         SaveSigninToken = true,
         ValidateAudience = true,
@@ -111,8 +112,24 @@ builder.Services.AddAuthentication(x =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("localhost:7251'",
+        builder =>
+        {
+            builder.WithOrigins("localhost:7251'")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
+
 var app = builder.Build();
+
+app.UseCors("AnyOrigin");
 // Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
 
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -120,8 +137,8 @@ var app = builder.Build();
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
     });
 
-app.ApplyMigrations();
-
+    app.ApplyMigrations();
+}
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

@@ -1,6 +1,6 @@
 ﻿namespace RentalMotor.Api.Entities
 {
-    public class FoorPlan
+    public class Plan
     {
         public string Id { get; set; }
         public int CostPerDay { get; set; }

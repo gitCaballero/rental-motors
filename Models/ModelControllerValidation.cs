@@ -8,6 +8,6 @@ namespace RentalMotor.Api.Models
 
         public string Message { get; set; }
 
-        public ResponseMotorModel MotorAvailable { get; set; } = new ResponseMotorModel();
+        public MotorModel MotorAvailable { get; set; } = new MotorModel();
     }
 }

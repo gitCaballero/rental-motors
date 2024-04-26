@@ -4,13 +4,13 @@ namespace RentalMotor.Api.Repository.Interfaces
 {
     public interface IContractUserFoorPlanRepository
     {
-        IEnumerable<ContractUserFoorPlan> Get();
+        IEnumerable<ContractPlanUserMotor> Get();
 
-        ContractUserFoorPlan GetById(string id);
+        ContractPlanUserMotor GetById(string id);
         
-        void Add(ContractUserFoorPlan contractUserFoorPlan);
+        void Add(ContractPlanUserMotor contractUserFoorPlan);
         
-        void Update(ContractUserFoorPlan contractUserFoorPlan);
+        void Update(ContractPlanUserMotor contractUserFoorPlan);
         
         void Delete(string id);
     }

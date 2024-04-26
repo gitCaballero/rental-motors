@@ -1,5 +1,5 @@
 ﻿using RentalMotor.Api.Entities;
-using RentalMotor.Api.Repository.Context;
+using RentalMotor.Api.Repository.Data;
 using RentalMotor.Api.Repository.Interfaces;
 
 namespace RentalMotor.Api.Repository.Implementations
@@ -7,43 +7,43 @@ namespace RentalMotor.Api.Repository.Implementations
     public class ContractUserFoorPlanRepository : IContractUserFoorPlanRepository
     {
 
-        private readonly RentalMotorDbContext _context;
+        private readonly ContractPlanUserMotorDbContext _context;
 
-        public ContractUserFoorPlanRepository(RentalMotorDbContext context)
+        public ContractUserFoorPlanRepository(ContractPlanUserMotorDbContext context)
         {
             _context = context;
         }
 
-        public void Add(ContractUserFoorPlan contractUserFoorPlan)
+        public void Add(ContractPlanUserMotor contractUserFoorPlan)
         {
-            _context.contractUserFoorPlans.Add(contractUserFoorPlan);
+            _context.ContractUserFoorPlans.Add(contractUserFoorPlan);
             _context.SaveChanges();
         }
 
         public void Delete(string id)
         {
-            var user = _context.contractUserFoorPlans.FirstOrDefault(u => u.Id == id);
+            var user = _context.ContractUserFoorPlans.FirstOrDefault(u => u.Id == id);
             if (user != null)
             {
-                _context.contractUserFoorPlans.Remove(user);
+                _context.ContractUserFoorPlans.Remove(user);
                 _context.SaveChanges();
             }
         }
 
-        public IEnumerable<ContractUserFoorPlan> Get()
+        public IEnumerable<ContractPlanUserMotor> Get()
         {
-            return _context.contractUserFoorPlans;
+            return _context.ContractUserFoorPlans;
 
         }
 
-        public ContractUserFoorPlan GetById(string id)
+        public ContractPlanUserMotor GetById(string id)
         {
-            return _context.contractUserFoorPlans.Where(u => u.Id == id).FirstOrDefault()!;
+            return _context.ContractUserFoorPlans.Where(u => u.Id == id).FirstOrDefault()!;
         }
 
-        public void Update(ContractUserFoorPlan contractUserFoorPlan)
+        public void Update(ContractPlanUserMotor contractUserFoorPlan)
         {
-            var existingUser = _context.contractUserFoorPlans.FirstOrDefault(u => u.Id == contractUserFoorPlan.Id);
+            var existingUser = _context.ContractUserFoorPlans.FirstOrDefault(u => u.Id == contractUserFoorPlan.Id);
             if (existingUser != null)
             {
                 _context.Update(contractUserFoorPlan);

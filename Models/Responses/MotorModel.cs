@@ -1,6 +1,6 @@
 ﻿namespace RentalMotor.Api.Models.Responses
 {
-    public class ResponseMotorModel : BaseMotorModel
+    public class MotorModel : BaseMotorModel
     {
         public string? Identifier { get; set; }
         public string? Model { get; set; }
@@ -14,7 +14,7 @@
 
     }
 
-    public class MotorModelContract : BaseMotorModel
+    public class MotorContractModel : BaseMotorModel
     {
         public int? IsAvalable { get; set; }
     }

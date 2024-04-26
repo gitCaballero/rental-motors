@@ -2,7 +2,7 @@
 
 namespace RentalMotor.Api.Models.Responses
 {
-    public class ResponseContractUserFoorPlanModel : RequestContractUserFoorPlanModel
+    public class ResponseContractUserFoorPlanModel : RequestContractPlanUserMotorModel
     {
         public string Id { get; set; }        
         public string StarDate { get; set; }

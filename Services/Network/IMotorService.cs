@@ -4,8 +4,8 @@ namespace RentalMotor.Api.Services.Network
 {
     public interface IMotorService
     {
-        Task<IEnumerable<ResponseMotorModel>> GetMotorsAvailableToRental();
+        Task<IEnumerable<MotorModel>> GetMotorsAvailableToRental();
       
-        Task<bool> UpdateMotorFlag(MotorModelContract models);
+        Task<bool> UpdateMotorFlag(MotorContractModel models);
     }
 }

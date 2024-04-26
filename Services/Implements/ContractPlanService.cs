@@ -4,16 +4,11 @@ using RentalMotor.Api.Services.Interfaces;
 
 namespace RentalMotor.Api.Services.Implements
 {
-    public class FoorPlanService : IFoorPlanService
+    public class ContractPlanService(IContractPlanRepository foorPlanRepository) : IContractPlanService
     {
-        private readonly IFoorPlanRepository _foorPlanRepository;
+        private readonly IContractPlanRepository _foorPlanRepository = foorPlanRepository;
 
-        public FoorPlanService(IFoorPlanRepository foorPlanRepository)
-        {
-            _foorPlanRepository = foorPlanRepository;
-        }
-
-        public void Add(FoorPlan foorPlan)
+        public void Add(Plan foorPlan)
         {
             throw new NotImplementedException();
         }
@@ -23,17 +18,17 @@ namespace RentalMotor.Api.Services.Implements
             throw new NotImplementedException();
         }
 
-        public IEnumerable<FoorPlan> Get()
+        public IEnumerable<Plan> Get()
         {
             throw new NotImplementedException();
         }
 
-        public FoorPlan GetByCountDay(int countDay)
+        public Plan GetByCountDay(int countDay)
         {
             return _foorPlanRepository.Get().Where(x => x.CountDay == countDay).FirstOrDefault()!;
         }
 
-        public void Update(FoorPlan foorPlan)
+        public void Update(Plan foorPlan)
         {
             throw new NotImplementedException();
         }
