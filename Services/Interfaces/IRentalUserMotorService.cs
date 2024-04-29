@@ -6,22 +6,20 @@ namespace RentalMotor.Api.Services.Interfaces
 {
     public interface IRentalUserMotorService
     {
-        IEnumerable<ResponseContractUserMotorModel> Get(string ?id, string? plate);
+        Task<IEnumerable<ResponseContractUserMotorModel>> Get(string ?id = null, string? cpf = null, string? plate = null);
+
+        Task<ResponseContractUserMotorModel> AddUser(RequestUserMotorModel user);
         
-        bool AddUser(RequestUserMotorModel user);
+        Task<ResponseCnhModel> UpdateCnh(IFormFile cnhImage);
         
-        ResponseCnhModel UpdateCnh(IFormFile cnhImage);
-        
-        void Delete(string id);
+        bool Delete(string id);
 
-        bool AddContract(MotorModel? motorModel, RequestContractPlanUserMotorModel? contractPlanUserMotorModel);
+        Task<ResponseContractUserFoorPlanModel> AddContract(MotorModel? motorModel, RequestContractPlanUserMotorModel? contractPlanUserMotorModel);
 
-        ModelControllerValidation ValidInputsController(RequestUserMotorModel userMotorModel);
+        Task<ModelControllerValidation> ValidInputsController(RequestUserMotorModel? userMotorModel = null);
 
-        ModelControllerValidation ValidInputsController(IFormFile cnhImage);
+        Task<ModelControllerValidation> ValidInputsController(RequestContractPlanUserMotorModel requestContractPlanUserMotorModel);
 
-        ModelControllerValidation ValidInputsController(RequestContractPlanUserMotorModel requestContractPlanUserMotorModel);
-
-
+        Task<S3ObjectModel> GetToDownloadImageCnh();
     }
 }

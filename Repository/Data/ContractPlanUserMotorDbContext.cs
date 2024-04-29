@@ -6,14 +6,14 @@ namespace RentalMotor.Api.Repository.Data
 {
     public class ContractPlanUserMotorDbContext(DbContextOptions<ContractPlanUserMotorDbContext> options) : DbContext(options)
     {
-        public DbSet<User> UsersMotors { get; set; }
+        public DbSet<User> UsersMotors { get; set; } = null!;
         
-        public DbSet<ContractPlanUserMotor> ContractUserFoorPlans { get; set; }
-        
-        public DbSet<Plan> FoorPlans { get; set; }
-        
-        public DbSet<Cnh> Cnhs { get; set; }
-        
+        public DbSet<ContractPlanUserMotor> ContractUserFoorPlans { get; set; } = null!;
+
+        public DbSet<Plan> FoorPlans { get; set; } = null!;
+
+        public DbSet<Cnh> Cnhs { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 

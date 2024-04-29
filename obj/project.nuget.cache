@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "R0i8lyp5+LA9nFm//nEhzmSYTUxdIjAb4M9kwXghxPpoKjQycWep1d6L79vdLIsFIp6O6Hl68TNuxOtM07HkbQ==",
+  "dgSpecHash": "FiEmYdAAiN7w0njqiBwf1vTPtFRiMkasfoTDLe0v7+0Pctl0Qtjw3xvPin+e7R1jlrt4FmAAmjvUaWinPX+N/Q==",
   "success": true,
   "projectFilePath": "D:\\Projects Dot Net\\Mottul\\rental-motors\\RentalMotor.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\cabal\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
+    "C:\\Users\\cabal\\.nuget\\packages\\awssdk.core\\3.7.303.23\\awssdk.core.3.7.303.23.nupkg.sha512",
+    "C:\\Users\\cabal\\.nuget\\packages\\awssdk.extensions.netcore.setup\\3.7.300\\awssdk.extensions.netcore.setup.3.7.300.nupkg.sha512",
+    "C:\\Users\\cabal\\.nuget\\packages\\awssdk.s3\\3.7.307.24\\awssdk.s3.3.7.307.24.nupkg.sha512",
     "C:\\Users\\cabal\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\cabal\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\cabal\\.nuget\\packages\\microsoft.aspnet.signalr.client\\2.4.3\\microsoft.aspnet.signalr.client.2.4.3.nupkg.sha512",

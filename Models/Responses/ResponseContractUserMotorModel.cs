@@ -14,7 +14,7 @@ namespace RentalMotor.Api.Models.Responses
 
         public string BirthDate { get; set; }
 
-        public CnhModel? Cnh { get; set; }
+        public ResponseCnhModel? Cnh { get; set; }
 
         public ResponseContractUserFoorPlanModel? ContractUserFoorPlanModel { get; set; }
     }

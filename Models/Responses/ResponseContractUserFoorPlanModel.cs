@@ -2,7 +2,7 @@
 
 namespace RentalMotor.Api.Models.Responses
 {
-    public class ResponseContractUserFoorPlanModel : RequestContractPlanUserMotorModel
+    public class ResponseContractUserFoorPlanModel
     {
         public string Id { get; set; }        
         public string StarDate { get; set; }
@@ -10,5 +10,8 @@ namespace RentalMotor.Api.Models.Responses
         public decimal PenaltyMissingDaysValue { get; set; }
         public decimal PenaltyOverDaysValue { get; set; }
         public int CountCurrentDays { get; set; }
+        public int FloorPlanCountDay { get; set; }
+        public string ForecastEndDate { get; set; }
+        public string MotorPlate { get; set; }
     }
 }

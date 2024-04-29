@@ -1,12 +1,17 @@
-﻿using Azure;
+﻿using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using RentalMotor.Api.Models.Requests;
 using RentalMotor.Api.Models.Responses;
 using RentalMotor.Api.Services.Interfaces;
 using RentalMotor.Api.Services.Network;
+using System.Collections;
 using System.Reflection;
+using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,19 +19,11 @@ namespace RentalMotor.Api.Controllers
 {
     [Route("rental-motors")]
     [ApiController]
-    public class RentalMotorController : ControllerBase
+    public class RentalMotorController(ILogger<RentalMotorController> logger, IRentalUserMotorService userMotorService, IContractPlanService foorPlanService) : ControllerBase
     {
-        private readonly ILogger<RentalMotorController> _logger;
-        private readonly IRentalUserMotorService _rentalUserMotorService;
-        public readonly IContractPlanService _foorPlanService;
-
-
-        public RentalMotorController(ILogger<RentalMotorController> logger, IRentalUserMotorService userMotorService, IContractPlanService foorPlanService)
-        {
-            _logger = logger;
-            _rentalUserMotorService = userMotorService;
-            _foorPlanService = foorPlanService;
-        }
+        private readonly ILogger<RentalMotorController> _logger = logger;
+        private readonly IRentalUserMotorService _rentalUserMotorService = userMotorService;
+        public readonly IContractPlanService _foorPlanService = foorPlanService;
 
         /// <summary>
         /// Search a or all contracts user motor by cpfCnpj or plate motor
@@ -34,22 +31,23 @@ namespace RentalMotor.Api.Controllers
         /// <remarks>
         /// Example:
         /// 
-        ///     GET /rental-motors?cpfCnpj=123
+        ///     GET /rental-motors?id=123
         ///     
         /// </remarks>
+        /// <param name="id">id</param>
         /// <param name="cpfCnpj">CpfCnpj</param>
         /// <param name="plate">Plate Motor</param>
         [ProducesResponseType(typeof(Response<List<ResponseContractUserMotorModel>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Get([FromQuery] string? cpfCnpj, string? plate)
+        public async Task<IActionResult> Get([FromQuery] string? id, string? cpfCnpj, string? plate)
         {
             try
             {
                 _logger.LogInformation($"Searching rental motors - {MethodBase.GetCurrentMethod().Name}");
 
-                var rentalMotors = await Task.Run(() => _rentalUserMotorService.Get(cpfCnpj, plate));
+                var rentalMotors = await Task.Run(() => _rentalUserMotorService.Get(id, cpfCnpj, plate));
 
                 _logger.LogInformation($"Returning {rentalMotors.Count()} contracts  - {MethodBase.GetCurrentMethod().Name}");
 
@@ -82,17 +80,17 @@ namespace RentalMotor.Api.Controllers
         {
             try
             {
-                var validatedModel = _rentalUserMotorService.ValidInputsController(requestContractPlanUserMotorModel);
+                var validatedModel = await _rentalUserMotorService.ValidInputsController(requestContractPlanUserMotorModel);
 
                 if (!validatedModel.IsValid)
                     return BadRequest(validatedModel.Message);
 
-                var flag = _rentalUserMotorService.AddContract(validatedModel.MotorAvailable, requestContractPlanUserMotorModel);
+                var responseContract = await _rentalUserMotorService.AddContract(validatedModel.MotorAvailable, requestContractPlanUserMotorModel);
 
-                if (!flag)
-                    return BadRequest($"It was not possible to make the user");
+                if (responseContract == null)
+                    return BadRequest($"It was not possible to make the contract");
 
-                var result = _rentalUserMotorService.Get(null, requestContractPlanUserMotorModel.MotorPlate);
+                var result = await _rentalUserMotorService.Get(null, null, requestContractPlanUserMotorModel.MotorPlate);
 
 
                 _logger.LogInformation($"Motorycle {result.FirstOrDefault()!.ContractUserFoorPlanModel!.MotorPlate} is rented for user {result.FirstOrDefault()!.CpfCnpj} - {MethodBase.GetCurrentMethod()!.Name}");
@@ -126,23 +124,64 @@ namespace RentalMotor.Api.Controllers
         {
             try
             {
-                var validatedModel = _rentalUserMotorService.ValidInputsController(userMotorModel);
+                var validatedModel = await _rentalUserMotorService.ValidInputsController(userMotorModel);
 
                 if (!validatedModel.IsValid)
                     return BadRequest(validatedModel.Message);
 
-                var flag = _rentalUserMotorService.AddUser(userMotorModel);
+                var responseContract = await _rentalUserMotorService.AddUser(userMotorModel);
 
-                if (!flag)
+                if (responseContract == null)
                     return BadRequest($"It was not possible to make the user");
 
-                var result = _rentalUserMotorService.Get(userMotorModel.CpfCnpj, null);
+
+                _logger.LogInformation($"User {responseContract.CpfCnpj} was registered successful - {MethodBase.GetCurrentMethod()!.Name}");
 
 
-                _logger.LogInformation($"User {result.FirstOrDefault()!.CpfCnpj} was registered successful - {MethodBase.GetCurrentMethod()!.Name}");
+                return StatusCode(StatusCodes.Status201Created, responseContract);
 
-                return StatusCode(StatusCodes.Status201Created, result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex.Message} - {MethodBase.GetCurrentMethod()!.Name}");
+                return BadRequest(ex.Message);
+            }
+        }
 
+
+        /// <summary>
+        /// Create a user 
+        /// </summary>
+        /// <remarks>
+        /// Example:
+        /// 
+        ///     POST /rental-motors/user
+        ///     
+        /// </remarks>
+        /// <param name="id"></param>
+        [ProducesResponseType(typeof(Response<ResponseContractUserMotorModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost("user/download")]
+        [Authorize(Roles = "admin,delivery")]
+        public async Task<IActionResult> DownloadPhoto()
+        {
+            try
+            {
+                var s3Model = await _rentalUserMotorService.GetToDownloadImageCnh();
+                if (s3Model == null)
+                    return NotFound("User no registered");
+
+                var filePath = s3Model!.PresignedUrl;
+
+                var fileName = Path.GetFileName(s3Model!.Name);
+
+                byte[] bytes = System.IO.File.ReadAllBytes(filePath!);
+
+
+
+                _logger.LogInformation($"Return Cnh photo - {MethodBase.GetCurrentMethod()!.Name}");
+
+                return File(bytes, "application/png", fileName);
             }
             catch (Exception ex)
             {
@@ -165,24 +204,24 @@ namespace RentalMotor.Api.Controllers
         [ProducesResponseType(typeof(Response<ResponseContractUserMotorModel>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPut("update-cnh")]
-        [Authorize(Roles = "delivery")]
-        public async Task<IActionResult> UpdateCnh([FromForm] IFormFile cnhImage)
+        [Authorize(Roles = "admin,delivery")]
+        public async Task<IActionResult> UpdateCnh([FromForm] RequestCnhUpdateModel cnhImage)
         {
             try
             {
-                var model = _rentalUserMotorService.ValidInputsController(cnhImage);
+                var user = await _rentalUserMotorService.Get();
+                if (!user.Any())
+                    return NotFound("User not foun");
 
-                if (!model.IsValid)
-                    return BadRequest(model.Message);
 
-                var cnhModel =  _rentalUserMotorService.UpdateCnh(cnhImage);
+                var cnhModel = await _rentalUserMotorService.UpdateCnh(cnhImage.ImagenCnh);
 
                 if (cnhModel == null)
                     return BadRequest($"It was not possible update image cnh");
 
                 _logger.LogInformation($"Motorycle {cnhModel.NumberCnh} is updeted - {MethodBase.GetCurrentMethod()!.Name}");
 
-                return StatusCode(StatusCodes.Status201Created, cnhModel);
+                return StatusCode(StatusCodes.Status202Accepted, cnhModel);
 
             }
             catch (Exception ex)
@@ -215,14 +254,20 @@ namespace RentalMotor.Api.Controllers
 
                 _logger.LogInformation($"Deleting User Motor {userId}- {MethodBase.GetCurrentMethod().Name}");
 
-                _rentalUserMotorService.Delete(userId);
+                var flag = await Task.Run(() => _rentalUserMotorService.Delete(userId));
 
-                return StatusCode(StatusCodes.Status204NoContent);
+                if (flag)
+                {
+                    _logger.LogInformation($"User Motor {userId} deleted - {MethodBase.GetCurrentMethod().Name}");
 
+                    return StatusCode(StatusCodes.Status204NoContent);
+                }
+
+                return StatusCode(StatusCodes.Status404NotFound);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Deleting User Motor {userId}- {MethodBase.GetCurrentMethod().Name}");
+                _logger.LogError($"{ex.Message} - {MethodBase.GetCurrentMethod().Name}");
 
                 return BadRequest(ex.Message);
             }

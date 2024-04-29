@@ -2,6 +2,6 @@
 {
     public class RequestCnhUpdateModel
     {
-        public required string ImagenCnh { get; set; } = string.Empty;
+        public required IFormFile ImagenCnh { get; set; }
     }
 }

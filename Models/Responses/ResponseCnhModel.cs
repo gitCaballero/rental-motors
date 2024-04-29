@@ -8,6 +8,6 @@ namespace RentalMotor.Api.Models.Responses
         public string UserMotorId { get; set; }
         public List<string> CnhCategories { get; set; }
         public int NumberCnh { get; set; }
-        public string ImagenCnh { get; set; } = string.Empty;
+        public string ImagePath { get; set; } = string.Empty;
     }
 }

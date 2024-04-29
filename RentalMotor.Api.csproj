@@ -11,6 +11,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
+		<PackageReference Include="AWSSDK.S3" Version="3.7.307.24" />
 		<PackageReference Include="Azure.Core" Version="1.38.0" />
 		<PackageReference Include="Microsoft.AspNet.SignalR.Client" Version="2.4.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />

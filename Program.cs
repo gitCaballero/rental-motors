@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Amazon.S3;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RentalMotor.Api.Configurations;
@@ -32,14 +32,11 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .Build();
 
-
 builder.Services.Configure<RentalMotorConfig>(options => configuration.GetSection("RentalMotorConfig").Bind(options));
-
-
 
 builder.Services.AddDbContext<ContractPlanUserMotorDbContext>(
         options => options.UseNpgsql(builder.Configuration.GetConnectionString("Connection"),
-        b => b.MigrationsAssembly("RentalMotor.Api")),ServiceLifetime.Transient);
+        b => b.MigrationsAssembly("RentalMotor.Api")));
 
 builder.Services.AddScoped<IUserMotorRepository, UserMotorRepository>(); 
 builder.Services.AddScoped<IContractPlanRepository, ContractPlanRepository>(); 
@@ -94,6 +91,9 @@ builder.Services.AddSwaggerGen
         c.AddSecurityRequirement(security);
     });
 
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddAuthentication(x =>
@@ -112,16 +112,16 @@ builder.Services.AddAuthentication(x =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("localhost:7251'",
-        builder =>
-        {
-            builder.WithOrigins("localhost:7251'")
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
-        });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("localhost:7251'",
+//        builder =>
+//        {
+//            builder.WithOrigins("localhost:7251'")
+//                   .AllowAnyHeader()
+//                   .AllowAnyMethod();
+//        });
+//});
 
 
 var app = builder.Build();

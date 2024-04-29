@@ -352,3 +352,6 @@ D:\Projects Dot Net\Mottul\rental-motors\obj\Debug\net8.0\RentalMotor.Api.xml
 D:\Projects Dot Net\Mottul\rental-motors\obj\Debug\net8.0\RentalMotor.Api.pdb
 D:\Projects Dot Net\Mottul\rental-motors\obj\Debug\net8.0\RentalMotor.Api.genruntimeconfig.cache
 D:\Projects Dot Net\Mottul\rental-motors\obj\Debug\net8.0\ref\RentalMotor.Api.dll
+D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\AWSSDK.Core.dll
+D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\AWSSDK.Extensions.NETCore.Setup.dll
+D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\AWSSDK.S3.dll
