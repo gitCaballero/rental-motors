@@ -168,20 +168,14 @@ namespace RentalMotor.Api.Controllers
             try
             {
                 var s3Model = await _rentalUserMotorService.GetToDownloadImageCnh();
-                if (s3Model == null)
+                if (!s3Model.Any())
                     return NotFound("User no registered");
 
-                var filePath = s3Model!.PresignedUrl;
+                var filePath = s3Model.FirstOrDefault()!.PresignedUrl;
 
-                var fileName = Path.GetFileName(s3Model!.Name);
+               _logger.LogInformation($"Return Cnh photo - {MethodBase.GetCurrentMethod()!.Name}");
 
-                byte[] bytes = System.IO.File.ReadAllBytes(filePath!);
-
-
-
-                _logger.LogInformation($"Return Cnh photo - {MethodBase.GetCurrentMethod()!.Name}");
-
-                return File(bytes, "application/png", fileName);
+                 return Ok(filePath);
             }
             catch (Exception ex)
             {

@@ -1,6 +1,4 @@
-﻿using Amazon.S3;
-using Amazon.S3.Model;
-using AutoMapper;
+﻿using AutoMapper;
 using RentalMotor.Api.Entities;
 using RentalMotor.Api.Models;
 using RentalMotor.Api.Models.Requests;
@@ -9,7 +7,6 @@ using RentalMotor.Api.Repository.Interfaces;
 using RentalMotor.Api.Services.Interfaces;
 using RentalMotor.Api.Services.Network;
 using RentalMotor.Api.Services.Responsabilities;
-using System.Text.RegularExpressions;
 
 namespace RentalMotor.Api.Services.Implements
 {
@@ -22,9 +19,9 @@ namespace RentalMotor.Api.Services.Implements
         private readonly IMotorService _motorService;
         private readonly string UserId;
         private readonly string UserName;
-        private readonly IAmazonS3 _s3Client;
+        private readonly IAwsService _awsService;
 
-        public RentalUserMotorService(IUserMotorRepository userMotorRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IContractPlanService foorPlanService, IMotorService motorService, IAmazonS3 s3Client)
+        public RentalUserMotorService(IUserMotorRepository userMotorRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IContractPlanService foorPlanService, IMotorService motorService, IAwsService awsService)
         {
             _foorPlanService = foorPlanService;
             _userMotorRepository = userMotorRepository;
@@ -33,7 +30,7 @@ namespace RentalMotor.Api.Services.Implements
             _motorService = motorService;
             UserId = _httpContextAccessor.HttpContext!.User.Claims.Where(x => x.Type.Contains("nameidentifier")).FirstOrDefault()!.Value;
             UserName = _httpContextAccessor.HttpContext.User.Claims.Where(x => x.Type.Contains("emailaddress")).FirstOrDefault()!.Value;
-            _s3Client = s3Client;
+            _awsService = awsService;
         }
 
         public async Task<ResponseContractUserMotorModel> AddUser(RequestUserMotorModel? userMotorModel)
@@ -44,27 +41,23 @@ namespace RentalMotor.Api.Services.Implements
                 userMotor.UserName = UserName;
                 userMotor.UserId = UserId;
 
-                var filePath = Path.Combine(Environment.CurrentDirectory, userMotorModel!.Cnh!.ImagenCnh.FileName);
+                var resultStatusCode = await _awsService.PutPhotoToAws(UserId, userMotorModel!);
 
-                using Stream stream = new FileStream(filePath, FileMode.Create);
-                userMotorModel.Cnh.ImagenCnh.CopyTo(stream);
-
-                userMotor.Cnh!.ImagePath = filePath;
-
-                var request = new PutObjectRequest()
+                if (resultStatusCode.HttpStatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    BucketName = "images-cnh-user",
-                    Key = $"{UserId?.TrimEnd('/')}/{userMotorModel!.Cnh!.ImagenCnh.FileName}",
-                    InputStream = userMotorModel!.Cnh!.ImagenCnh.OpenReadStream()
-                };
-                request.Metadata.Add("Content-Type", userMotorModel!.Cnh!.ImagenCnh.ContentType);
-                await _s3Client.PutObjectAsync(request);
 
-                var user = await Task.Run(() => _userMotorRepository.Add(userMotor));
+                    var response = await _awsService.GetPhotoFromAws(UserId!);
 
-                var result = _mapper.Map<ResponseContractUserMotorModel>(user);
+                    userMotor.Cnh.ImagePath = response.FirstOrDefault()!.PresignedUrl!;
 
-                return result;
+                    var user = await Task.Run(() => _userMotorRepository.Add(userMotor));
+
+                    var result = _mapper.Map<ResponseContractUserMotorModel>(user);
+
+                    return result;
+                }
+
+                return new();
 
             }
             catch (Exception ex)
@@ -98,7 +91,7 @@ namespace RentalMotor.Api.Services.Implements
                     var result = _mapper.Map<ResponseContractUserFoorPlanModel>(userUpdated.ContractUserFoorPlan);
                     return result;
                 }
-                return new ();
+                return new();
             }
             catch (Exception ex)
             {
@@ -110,7 +103,7 @@ namespace RentalMotor.Api.Services.Implements
         {
             return _userMotorRepository.Delete(id);
         }
-
+        
         public async Task<IEnumerable<ResponseContractUserMotorModel>> Get(string? id = null, string? cpfCnpj = null, string? plate = null)
         {
             var userMotorModels = new List<ResponseContractUserMotorModel>();
@@ -145,40 +138,7 @@ namespace RentalMotor.Api.Services.Implements
             return userMotorModels;
         }
 
-        public async Task<S3ObjectModel> GetToDownloadImageCnh()
-        {
-            var user = await Task.Run(() => _userMotorRepository.Get(userId:UserId));
-            if (user.Any())
-            {
-
-                var request = new ListObjectsV2Request()
-                {
-                    BucketName = "images-cnh-user",
-                    Prefix = $"{UserId?.TrimEnd('/')}"
-                };
-                var result = await _s3Client.ListObjectsV2Async(request);
-                
-                var s3Objects = result.S3Objects.Select(s =>
-                {
-                    var urlRequest = new GetPreSignedUrlRequest()
-                    {
-                        BucketName = "images-cnh-user",
-                        Key = s.Key,
-                        Expires = DateTime.UtcNow.AddMinutes(1)
-                    };
-                    return new S3ObjectModel()
-                    {
-                        Name = s.Key.ToString(),
-                        PresignedUrl = _s3Client.GetPreSignedURL(urlRequest),
-                    };
-                });
-
-                return s3Objects.FirstOrDefault()!;
-            }
-            return new ();
-        }
-
-        public async Task<ResponseCnhModel> UpdateCnh(IFormFile cnhImage)
+      public async Task<ResponseCnhModel> UpdateCnh(IFormFile cnhImage)
         {
             var userId = UserId;
             var result = await Task.Run(() => _userMotorRepository.Get(userId, null));
@@ -206,14 +166,14 @@ namespace RentalMotor.Api.Services.Implements
                 IsValid = false
             };
 
-            var existUser = await Task.Run(() => _userMotorRepository.Get(userId:UserId));
+            var existUser = await Task.Run(() => _userMotorRepository.Get(userId: UserId));
             if (existUser.Any())
             {
                 modelValided.Message = $"User {existUser.FirstOrDefault()!.UserName} is already registered";
                 return modelValided;
             }
 
-            var existCpfCnpj = await Task.Run(() => _userMotorRepository.Get(cpfCnpj:userMotorModel!.CpfCnpj));
+            var existCpfCnpj = await Task.Run(() => _userMotorRepository.Get(cpfCnpj: userMotorModel!.CpfCnpj));
             if (existCpfCnpj.Any())
             {
                 modelValided.Message = $"Cpf or Cnpj {existCpfCnpj.FirstOrDefault()!.CpfCnpj} is already registered";
@@ -239,7 +199,7 @@ namespace RentalMotor.Api.Services.Implements
                 modelValided.Message = "You are not qualified to rent a motorcycle";
                 return modelValided;
             }
-            
+
             if (userMotorModel.Cnh!.CnhCategories.Any(x => !x.ToUpper().Equals("A") && !x.ToUpper().Equals("B")))
             {
                 modelValided.Message = "Cnh category invalid";
@@ -250,7 +210,7 @@ namespace RentalMotor.Api.Services.Implements
             return modelValided;
 
         }
-      
+
         public async Task<ModelControllerValidation> ValidInputsController(RequestContractPlanUserMotorModel contractPlanUserMotorModel)
         {
             var modelValided = new ModelControllerValidation
@@ -259,7 +219,7 @@ namespace RentalMotor.Api.Services.Implements
                 IsValid = false
             };
 
-            var existUser = await Task.Run(() => _userMotorRepository.Get(userId:UserId));
+            var existUser = await Task.Run(() => _userMotorRepository.Get(userId: UserId));
             if (existUser.Any())
             {
                 if (existUser.FirstOrDefault()!.ContractUserFoorPlan != null)

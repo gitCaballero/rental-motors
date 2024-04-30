@@ -44,6 +44,7 @@ builder.Services.AddScoped<IContractUserFoorPlanRepository, ContractUserFoorPlan
 builder.Services.AddScoped<IRentalUserMotorService, RentalUserMotorService>(); 
 builder.Services.AddScoped<IMotorService, MotorService>(); 
 builder.Services.AddScoped<IContractPlanService, ContractPlanService>(); 
+builder.Services.AddScoped<IAwsService, AwsService>(); 
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -111,18 +112,6 @@ builder.Services.AddAuthentication(x =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     });
-
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("localhost:7251'",
-//        builder =>
-//        {
-//            builder.WithOrigins("localhost:7251'")
-//                   .AllowAnyHeader()
-//                   .AllowAnyMethod();
-//        });
-//});
-
 
 var app = builder.Build();
 

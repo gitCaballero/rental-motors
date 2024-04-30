@@ -20,6 +20,5 @@ namespace RentalMotor.Api.Services.Interfaces
 
         Task<ModelControllerValidation> ValidInputsController(RequestContractPlanUserMotorModel requestContractPlanUserMotorModel);
 
-        Task<S3ObjectModel> GetToDownloadImageCnh();
     }
 }
