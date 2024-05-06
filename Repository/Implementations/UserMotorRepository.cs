@@ -53,7 +53,7 @@ namespace RentalMotor.Api.Repository.Implementations
 
         public bool Delete(string id)
         {
-            var user = _context.UsersMotors.FirstOrDefault(u => u.Id == id);
+            var user = _context.UsersMotors.FirstOrDefault(u => u.UserId == id);
             if (user != null)
             {
                 _context.UsersMotors.Remove(user);

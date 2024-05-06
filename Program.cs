@@ -1,6 +1,8 @@
 ﻿using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RentalMotor.Api.Configurations;
@@ -13,6 +15,7 @@ using RentalMotor.Api.Services.Implements;
 using RentalMotor.Api.Services.Interfaces;
 using RentalMotor.Api.Services.Network;
 using RentalMotor.Api.Services.Network.MessageConsumer;
+using RentalMotor.Api.Services.Network.MessageSender;
 using System.Reflection;
 using System.Text;
 
@@ -35,7 +38,7 @@ var configuration = new ConfigurationBuilder()
 
 builder.Services.Configure<MotorServiceConfig>(options => configuration.GetSection("MotorServiceConfig").Bind(options));
 
-builder.Services.AddHttpClient<IMotorService, MotorService>(c => c.BaseAddress = new Uri(uriString: configuration["MotorServiceConfig:Host:Path"]));
+builder.Services.AddHttpClient<IMotorService, MotorService>(c => c.BaseAddress = new Uri(uriString: configuration.GetSection("MotorServiceConfig:Host").ToString()!));
 
 builder.Services.AddDbContext<ContractPlanUserMotorDbContext>(
         options => options.UseNpgsql(builder.Configuration.GetConnectionString("Connection"),

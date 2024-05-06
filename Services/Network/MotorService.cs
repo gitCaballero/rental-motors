@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using RentalMotor.Api.Configurations;
 using RentalMotor.Api.Models.Responses;
+using RentalMotor.Api.Services.Network.MessageSender;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -12,14 +13,17 @@ namespace RentalMotor.Api.Services.Network
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _jwtToken;
         private readonly HttpClient _httpClient;
+        public readonly IRabbitMQMessageSender _rabbitMQMessageSender;
 
-        public MotorService(IOptions<MotorServiceConfig> config, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
+
+        public MotorService(IOptions<MotorServiceConfig> config, IHttpContextAccessor httpContextAccessor, HttpClient httpClient, IRabbitMQMessageSender rabbitMQMessageSender)
         {
             _config = config.Value;
             _httpContextAccessor = httpContextAccessor;
             _httpClient = httpClient;
             _jwtToken = _httpContextAccessor.HttpContext!.Request.Headers.Authorization.ToString().Split(" ")[1];
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _jwtToken);
+            _rabbitMQMessageSender = rabbitMQMessageSender;
         }
 
         public async Task<IEnumerable<MotorModel>> GetMotorsAvailableToRental()
@@ -27,6 +31,11 @@ namespace RentalMotor.Api.Services.Network
             try
             {
                 {
+                    _rabbitMQMessageSender.SendMessage(new List<ResponseContractUserMotorModel> { new ResponseContractUserMotorModel
+                    {
+                        UserId = "user"
+                    } }, "requestmotorsavailablesqueue");
+
                     var response = await _httpClient.GetAsync($"{_config.MotorsAvailablesParameter}");
 
                     if (response.IsSuccessStatusCode)

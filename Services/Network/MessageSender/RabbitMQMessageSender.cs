@@ -4,7 +4,7 @@ using RentalMotors.MessageBus;
 using System.Text;
 using System.Text.Json;
 
-namespace RentalMotor.Api.Services.Network
+namespace RentalMotor.Api.Services.Network.MessageSender
 {
     public class RabbitMQMessageSender : IRabbitMQMessageSender
     {
@@ -37,8 +37,8 @@ namespace RentalMotor.Api.Services.Network
 
         private static byte[] GetMessageAssByteArray(BaseMessage message)
         {
-            var options  =  new JsonSerializerOptions { WriteIndented = true };
-            var json = JsonSerializer.Serialize<ResponseContractUserMotorModel>((ResponseContractUserMotorModel)message, options);
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var json = JsonSerializer.Serialize((ResponseContractUserMotorModel)message, options);
             var body = Encoding.UTF8.GetBytes(json);
             return body;
         }

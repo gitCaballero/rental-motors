@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using RentalMotor.Api.Models.Requests;
 using RentalMotor.Api.Models.Responses;
 using RentalMotor.Api.Services.Interfaces;
-using RentalMotor.Api.Services.Network;
+using RentalMotor.Api.Services.Network.MessageSender;
 using System.Reflection;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
