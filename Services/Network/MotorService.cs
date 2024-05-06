@@ -1,45 +1,42 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using RentalMotor.Api.Configurations;
 using RentalMotor.Api.Models.Responses;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace RentalMotor.Api.Services.Network
 {
     public class MotorService : IMotorService
     {
-        private readonly RentalMotorConfig _config;
+        private readonly MotorServiceConfig _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _jwtToken;
         private readonly HttpClient _httpClient;
 
-        public MotorService(IOptions<RentalMotorConfig> config, IHttpContextAccessor httpContextAccessor)
+        public MotorService(IOptions<MotorServiceConfig> config, IHttpContextAccessor httpContextAccessor, HttpClient httpClient)
         {
             _config = config.Value;
             _httpContextAccessor = httpContextAccessor;
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
             _jwtToken = _httpContextAccessor.HttpContext!.Request.Headers.Authorization.ToString().Split(" ")[1];
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _jwtToken);
         }
-      
+
         public async Task<IEnumerable<MotorModel>> GetMotorsAvailableToRental()
         {
-            var motorsAvaliables = new List<MotorModel>();
             try
             {
                 {
-
-                    var response = await _httpClient.GetAsync(new Uri($"{_config.Host}{_config.Path}{_config.MotorsAvailables}"));
+                    var response = await _httpClient.GetAsync($"{_config.MotorsAvailablesParameter}");
 
                     if (response.IsSuccessStatusCode)
                     {
-                        var result = response.Content.ReadAsStringAsync().Result;
+                        var result = await response.Content.ReadAsStreamAsync();
+                        var motorsAvaliables = await JsonSerializer.DeserializeAsync<IEnumerable<MotorModel>>(result);
 
-                        motorsAvaliables = await Task.Run(() => JsonConvert.DeserializeObject<IEnumerable<MotorModel>>(result).ToList());
-
-                        return motorsAvaliables;
+                        return motorsAvaliables!;
                     }
-                    return motorsAvaliables;
+                    return [];
                 };
             }
             catch (Exception ex)
@@ -53,9 +50,9 @@ namespace RentalMotor.Api.Services.Network
         {
             try
             {
-                motorContract.IsAvalable = 0;
+                motorContract.IsAvailable = 0;
 
-                var response = await _httpClient.PutAsJsonAsync<MotorContractModel>($"{_config.Host}{_config.Path}", motorContract);
+                var response = await _httpClient.PutAsJsonAsync<MotorContractModel>($"{_config.Path}", motorContract);
 
                 if (response.IsSuccessStatusCode)
                     return true;
@@ -64,7 +61,7 @@ namespace RentalMotor.Api.Services.Network
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message,ex);
+                throw new Exception(ex.Message, ex);
             }
         }
     }

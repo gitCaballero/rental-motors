@@ -1,14 +1,14 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
+using RentalMotor.Api.Entities;
 using RentalMotor.Api.Models;
-using RentalMotor.Api.Models.Requests;
 
 namespace RentalMotor.Api.Services.Network
 {
     public class AwsService(IAmazonS3 s3Client) : IAwsService
     {
         private readonly IAmazonS3 _s3Client = s3Client;
-        private readonly string bucketName = "images-cnh-user";
+        private const string bucketName = "images-cnh-user";
 
         public async Task<IEnumerable<S3ObjectModel>> GetPhotoFromAws(string UserId)
         {
@@ -26,7 +26,7 @@ namespace RentalMotor.Api.Services.Network
                 {
                     BucketName = bucketName,
                     Key = s.Key,
-                    Expires = DateTime.UtcNow.AddMinutes(1)
+                    Expires = DateTime.UtcNow.AddMinutes(2)
                 };
                 return new S3ObjectModel()
                 {
@@ -38,15 +38,30 @@ namespace RentalMotor.Api.Services.Network
             return s3Objects;
         }
 
-        public async Task<PutObjectResponse> PutPhotoToAws(string UserId, RequestUserMotorModel model)
+        public async Task<PutObjectResponse> PutPhotoToAws(User user, IFormFile file)
         {
+            DeleteObjectResponse? status = null;
+            var key = $"{user.UserId?.TrimEnd('/')}/{file.FileName}";
+
+            if (!string.IsNullOrEmpty(user.Cnh.ImagePath))
+            {
+
+                status = await _s3Client.DeleteObjectAsync(bucketName, user.Cnh.ImagePath);
+
+                if (status != null && status.HttpStatusCode != System.Net.HttpStatusCode.NoContent)
+                    return new();
+            }
+
             var request = new PutObjectRequest()
             {
                 BucketName = bucketName,
-                Key = $"{UserId?.TrimEnd('/')}/{model!.Cnh!.ImagenCnh.FileName}",
-                InputStream = model!.Cnh!.ImagenCnh.OpenReadStream()
+                Key = key,
+                InputStream = file!.OpenReadStream()
             };
-            request.Metadata.Add("Content-Type", model!.Cnh!.ImagenCnh.ContentType);
+
+            user.Cnh.ImagePath = key;
+
+            request.Metadata.Add("Content-Type", file!.ContentType);
             return await _s3Client.PutObjectAsync(request);
         }
     }

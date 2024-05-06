@@ -17,12 +17,14 @@ namespace RentalMotor.Api.Mapper
             CreateMap<CnhModel, Cnh>();            
             CreateMap<Cnh, CnhModel>();            
             CreateMap<Cnh, ResponseCnhModel>();            
+            CreateMap<ResponseCnhModel, Cnh>();            
             CreateMap<ContractPlanUserMotor, RequestContractPlanUserMotorModel>();
             CreateMap<ContractPlanUserMotor, ResponseContractUserFoorPlanModel>();
             CreateMap<ResponseContractUserFoorPlanModel, ContractPlanUserMotor>();
             CreateMap<RequestContractPlanUserMotorModel, ContractPlanUserMotor>();
             CreateMap<Plan, FoorPlanModel>();            
             CreateMap<MotorModel, MotorContractModel>();            
+            CreateMap<ContractPlanUserMotor, ResponseContractUserFoorPlanModel>();            
         }
     }
 }

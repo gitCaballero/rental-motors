@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using RentalMotor.Api.Models.Requests;
+﻿using RentalMotors.MessageBus;
 
 namespace RentalMotor.Api.Models.Responses
 {
-    public class ResponseContractUserMotorModel
+    public class ResponseContractUserMotorModel : BaseMessage
     {
 
         public string UserId { get; set; }

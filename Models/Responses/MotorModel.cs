@@ -16,7 +16,7 @@
 
     public class MotorContractModel : BaseMotorModel
     {
-        public int? IsAvalable { get; set; }
+        public int? IsAvailable { get; set; }
     }
 
 }

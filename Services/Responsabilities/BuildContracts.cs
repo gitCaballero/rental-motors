@@ -28,7 +28,7 @@ namespace RentalMotor.Api.Services.Responsabilities
                 penaltyOverDaysValue = days * 50;
 
 
-            var userMotor = _mapper.Map<User>(contractPlanUserMotorModel);
+            var userMotor = new User();
 
 
             userMotor.ContractUserFoorPlan = new ContractPlanUserMotor

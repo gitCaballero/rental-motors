@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Amazon.S3.Model;
+using AutoMapper;
 using RentalMotor.Api.Entities;
 using RentalMotor.Api.Models;
 using RentalMotor.Api.Models.Requests;
@@ -41,24 +42,19 @@ namespace RentalMotor.Api.Services.Implements
                 userMotor.UserName = UserName;
                 userMotor.UserId = UserId;
 
-                var resultStatusCode = await _awsService.PutPhotoToAws(UserId, userMotorModel!);
-
+                var resultStatusCode = await _awsService.PutPhotoToAws(userMotor, userMotorModel!.Cnh.ImagenCnh!);
                 if (resultStatusCode.HttpStatusCode == System.Net.HttpStatusCode.OK)
                 {
-
                     var response = await _awsService.GetPhotoFromAws(UserId!);
-
-                    userMotor.Cnh.ImagePath = response.FirstOrDefault()!.PresignedUrl!;
 
                     var user = await Task.Run(() => _userMotorRepository.Add(userMotor));
 
                     var result = _mapper.Map<ResponseContractUserMotorModel>(user);
-
+                    result.Cnh.ImagePath = response.FirstOrDefault()!.PresignedUrl!;
                     return result;
                 }
-
-                return new();
-
+                return new ();
+               
             }
             catch (Exception ex)
             {
@@ -79,12 +75,13 @@ namespace RentalMotor.Api.Services.Implements
 
                 if (flag)
                 {
-                    var countDay = contractUserMotor.FloorPlanCountDay;
+                    var countDay = contractPlanUserMotorModel!.FloorPlanCountDay;
                     var foorPlan = _foorPlanService.GetByCountDay(countDay);
-                    var forCastEndDate = DateTime.Parse(contractUserMotor.ForecastEndDate);
+                    var forCastEndDate = DateTime.Parse(contractPlanUserMotorModel.ForecastEndDate);
 
-                    var user = await Task.Run(() => BuildContracts.BuildContract(contractPlanUserMotorModel!, foorPlan, _mapper));
-                    user.Id = UserId;
+                    var userContract = await Task.Run(() => BuildContracts.BuildContract(contractPlanUserMotorModel!, foorPlan, _mapper));
+                    var user = _userMotorRepository.Get(UserId).FirstOrDefault();
+                    user!.ContractUserFoorPlan = userContract.ContractUserFoorPlan;
 
                     var userUpdated = await Task.Run(() => _userMotorRepository.Update(user));
 
@@ -103,7 +100,7 @@ namespace RentalMotor.Api.Services.Implements
         {
             return _userMotorRepository.Delete(id);
         }
-        
+
         public async Task<IEnumerable<ResponseContractUserMotorModel>> Get(string? id = null, string? cpfCnpj = null, string? plate = null)
         {
             var userMotorModels = new List<ResponseContractUserMotorModel>();
@@ -113,49 +110,42 @@ namespace RentalMotor.Api.Services.Implements
                 foreach (var userMotor in usersMotors)
                 {
                     var userMotorModel = _mapper.Map<ResponseContractUserMotorModel>(userMotor);
-                    if (userMotorModel.ContractUserFoorPlanModel != null)
+                    var response = await _awsService.GetPhotoFromAws(userMotor.UserId!);
+                    userMotorModel.Cnh!.ImagePath = response.FirstOrDefault()!.PresignedUrl!;
+                    
+
+                    if (userMotor.ContractUserFoorPlan != null)
                     {
-                        userMotorModel.ContractUserFoorPlanModel = new()
-                        {
-                            EndDate = userMotor.ContractUserFoorPlan!.EndDate,
-                            FloorPlanCountDay = userMotor.ContractUserFoorPlan.FloorPlanCountDay,
-                            ForecastEndDate = userMotor.ContractUserFoorPlan.ForecastEndDate,
-                            Id = userMotor.ContractUserFoorPlan.Id,
-                            MotorPlate = userMotor.ContractUserFoorPlan.MotorPlate,
-                            PenaltyMissingDaysValue = userMotor.ContractUserFoorPlan.PenaltyMissingDaysValue,
-                            PenaltyOverDaysValue = userMotor.ContractUserFoorPlan.PenaltyOverDaysValue,
-                            StarDate = userMotor.ContractUserFoorPlan!.StarDate,
-                            CountCurrentDays = userMotor.ContractUserFoorPlan!.CountCurrentDays
-                        };
+                        var contractModel = _mapper.Map<ResponseContractUserFoorPlanModel>(userMotor.ContractUserFoorPlan);
+                        userMotorModel.ContractUserFoorPlanModel = contractModel;
                         userMotorModels.Add(userMotorModel);
                     }
                     else
                         userMotorModels.Add(userMotorModel);
-
                 }
                 return userMotorModels;
             }
             return userMotorModels;
         }
 
-      public async Task<ResponseCnhModel> UpdateCnh(IFormFile cnhImage)
+        public async Task<ResponseCnhModel> UpdateCnh(IFormFile cnhImage)
         {
-            var userId = UserId;
-            var result = await Task.Run(() => _userMotorRepository.Get(userId, null));
+            var userMotor = _userMotorRepository.Get(UserId).FirstOrDefault(); 
+            var resultStatusCode = await _awsService.PutPhotoToAws(userMotor!, cnhImage);
+            if (resultStatusCode.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var response = await _awsService.GetPhotoFromAws(UserId!);
 
-            var filePath = Path.Combine(Environment.CurrentDirectory, cnhImage.FileName);
+                var user = await Task.Run(() => _userMotorRepository.Update(userMotor));
 
-            using Stream stream = new FileStream(filePath, FileMode.Create);
-            cnhImage.CopyTo(stream);
+                var result = _mapper.Map<ResponseContractUserMotorModel>(user);
 
-            var userMotor = result.FirstOrDefault();
+                result.Cnh.ImagePath = response.FirstOrDefault()!.PresignedUrl!;
 
-            userMotor!.Cnh!.ImagePath = filePath;
+                return result.Cnh!;
+            }
 
-            userMotor = _userMotorRepository.Update(userMotor);
-
-            var contractUserMotorModel = _mapper.Map<ResponseCnhModel>(userMotor!.Cnh);
-            return contractUserMotorModel;
+            return new();
         }
 
         public async Task<ModelControllerValidation> ValidInputsController(RequestUserMotorModel? userMotorModel = null)
@@ -203,6 +193,13 @@ namespace RentalMotor.Api.Services.Implements
             if (userMotorModel.Cnh!.CnhCategories.Any(x => !x.ToUpper().Equals("A") && !x.ToUpper().Equals("B")))
             {
                 modelValided.Message = "Cnh category invalid";
+                return modelValided;
+            }
+
+            string ext = Path.GetExtension(userMotorModel.Cnh.ImagenCnh.FileName);
+            if (!ext.Equals(".png") && !ext.Equals(".bmp"))
+            {
+                modelValided.Message = "Photo format invalid";
                 return modelValided;
             }
 

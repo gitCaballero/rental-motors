@@ -1,4 +1,5 @@
-﻿using RentalMotor.Api.Models.Requests;
+﻿using RentalMotor.Api.Entities;
+using RentalMotor.Api.Models.Requests;
 
 namespace RentalMotor.Api.Models.Responses
 {
@@ -13,5 +14,9 @@ namespace RentalMotor.Api.Models.Responses
         public int FloorPlanCountDay { get; set; }
         public string ForecastEndDate { get; set; }
         public string MotorPlate { get; set; }
+        public int CostPerDay { get; set; }
+        public int CountDay { get; set; }
+        public decimal PenaltyPorcent { get; set; }
+        
     }
 }

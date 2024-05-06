@@ -355,3 +355,6 @@ D:\Projects Dot Net\Mottul\rental-motors\obj\Debug\net8.0\ref\RentalMotor.Api.dl
 D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\AWSSDK.Core.dll
 D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\AWSSDK.Extensions.NETCore.Setup.dll
 D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\AWSSDK.S3.dll
+D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\RabbitMQ.Client.dll
+D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\RentalMotors.MessageBus.dll
+D:\Projects Dot Net\Mottul\rental-motors\bin\Debug\net8.0\RentalMotors.MessageBus.pdb

@@ -12,6 +12,7 @@ using RentalMotor.Api.Repository.Interfaces;
 using RentalMotor.Api.Services.Implements;
 using RentalMotor.Api.Services.Interfaces;
 using RentalMotor.Api.Services.Network;
+using RentalMotor.Api.Services.Network.MessageConsumer;
 using System.Reflection;
 using System.Text;
 
@@ -32,7 +33,9 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .Build();
 
-builder.Services.Configure<RentalMotorConfig>(options => configuration.GetSection("RentalMotorConfig").Bind(options));
+builder.Services.Configure<MotorServiceConfig>(options => configuration.GetSection("MotorServiceConfig").Bind(options));
+
+builder.Services.AddHttpClient<IMotorService, MotorService>(c => c.BaseAddress = new Uri(uriString: configuration["MotorServiceConfig:Host:Path"]));
 
 builder.Services.AddDbContext<ContractPlanUserMotorDbContext>(
         options => options.UseNpgsql(builder.Configuration.GetConnectionString("Connection"),
@@ -42,9 +45,12 @@ builder.Services.AddScoped<IUserMotorRepository, UserMotorRepository>();
 builder.Services.AddScoped<IContractPlanRepository, ContractPlanRepository>(); 
 builder.Services.AddScoped<IContractUserFoorPlanRepository, ContractUserFoorPlanRepository>(); 
 builder.Services.AddScoped<IRentalUserMotorService, RentalUserMotorService>(); 
-builder.Services.AddScoped<IMotorService, MotorService>(); 
+builder.Services.AddScoped<IMotorService, MotorService>();
 builder.Services.AddScoped<IContractPlanService, ContractPlanService>(); 
-builder.Services.AddScoped<IAwsService, AwsService>(); 
+builder.Services.AddScoped<IAwsService, AwsService>();
+builder.Services.AddScoped<IRabbitMQMessageSender, RabbitMQMessageSender>();
+
+builder.Services.AddHostedService<RabbitMQMessageConsumer>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -94,6 +100,7 @@ builder.Services.AddSwaggerGen
 
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddAWSService<IAmazonS3>();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 

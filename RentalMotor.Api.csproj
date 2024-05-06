@@ -12,8 +12,8 @@
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
-		<PackageReference Include="AWSSDK.S3" Version="3.7.307.24" />
-		<PackageReference Include="Azure.Core" Version="1.38.0" />
+		<PackageReference Include="AWSSDK.S3" Version="3.7.307.25" />
+		<PackageReference Include="Azure.Core" Version="1.39.0" />
 		<PackageReference Include="Microsoft.AspNet.SignalR.Client" Version="2.4.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
@@ -26,8 +26,13 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
+		<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RentalMotors.MessageBus\RentalMotors.MessageBus.csproj" />
 	</ItemGroup>
 
 </Project>
